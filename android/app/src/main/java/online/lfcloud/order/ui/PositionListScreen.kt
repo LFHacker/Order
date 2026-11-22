@@ -101,11 +101,6 @@ fun PositionListScreen(
         }
 
         if (list.isNotEmpty()) {
-            Text(
-                "按住右侧手柄拖动可以调整顺序",
-                fontSize = 12.sp, color = Color(0xFFB0B0B0),
-                modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 12.dp)
-            )
             Box(Modifier.fillMaxWidth().height(1.dp).background(HairLine))
         }
 
@@ -113,7 +108,6 @@ fun PositionListScreen(
             Column(Modifier.fillMaxSize()) {
                 EmptyHint(
                     title = "这个模块还没有方位",
-                    desc = "方位是模块里的位置划分——\n抽屉有「第一层」，桌面有「左边」「右边」。",
                     cta = "新建方位",
                     iconId = "layers",
                     onCreate = onCreate

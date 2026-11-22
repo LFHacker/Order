@@ -93,7 +93,6 @@ fun ItemListScreen(
         if (list.isEmpty()) {
             EmptyHint(
                 title = "这一格还空着",
-                desc = "把东西录进来，写上名字、拍张照，\n以后找它就翻这一层。",
                 cta = "新建物品",
                 iconId = "box",
                 onCreate = onCreate

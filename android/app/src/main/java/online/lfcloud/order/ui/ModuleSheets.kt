@@ -175,13 +175,6 @@ fun DeleteModuleDialog(
                         "删除后模块与其中的物品一起进入回收站，30 天内可恢复。",
                     fontSize = 13.sp, color = Muted, lineHeight = 21.sp
                 )
-                Spacer(Modifier.height(12.dp))
-                Box(Modifier.fillMaxWidth().height(1.dp).background(HairLine))
-                Spacer(Modifier.height(12.dp))
-                Text(
-                    "如果只想取消这个模块、物品还想留着，先把物品移到其它模块再删。",
-                    fontSize = 11.5.sp, color = Muted, lineHeight = 18.sp
-                )
             }
         },
         confirmButton = {
@@ -216,13 +209,6 @@ fun DeletePositionDialog(
                     "该方位下有 ${target.itemCount} 件物品。\n" +
                         "删除后方位与其中的物品一起进入回收站，30 天内可恢复。",
                     fontSize = 13.sp, color = Muted, lineHeight = 21.sp
-                )
-                Spacer(Modifier.height(12.dp))
-                Box(Modifier.fillMaxWidth().height(1.dp).background(HairLine))
-                Spacer(Modifier.height(12.dp))
-                Text(
-                    "和工作区、模块的删除一致：整块进回收站，不影响同一模块里的其它方位。",
-                    fontSize = 11.5.sp, color = Muted, lineHeight = 18.sp
                 )
             }
         },

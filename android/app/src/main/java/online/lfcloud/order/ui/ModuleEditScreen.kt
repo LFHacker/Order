@@ -129,7 +129,6 @@ fun ModuleEditScreen(
             Spacer(Modifier.height(4.dp))
             Box(Modifier.fillMaxWidth().height(44.dp), contentAlignment = Alignment.CenterStart) {
                 if (vm.mdName.isEmpty()) {
-                    Text("例如：桌面", fontSize = 16.sp, color = MutedLight)
                 }
                 BasicTextField(
                     value = vm.mdName,
@@ -149,7 +148,6 @@ fun ModuleEditScreen(
             Spacer(Modifier.height(20.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 MiniLabel("图标")
-                Text("可选", fontSize = 12.5.sp, color = MutedLight)
             }
             Spacer(Modifier.height(9.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(9.dp)) {
@@ -191,8 +189,6 @@ fun ModuleEditScreen(
             Spacer(Modifier.height(4.dp))
             Box(Modifier.fillMaxWidth().height(76.dp)) {
                 if (vm.mdDesc.isEmpty()) {
-                    Text("例如：靠窗的长桌，平时放电脑和工具",
-                        fontSize = 15.sp, color = MutedLight)
                 }
                 BasicTextField(
                     value = vm.mdDesc,
@@ -204,17 +200,8 @@ fun ModuleEditScreen(
             }
             Box(Modifier.fillMaxWidth().height(1.dp).background(HairLine))
 
-            Spacer(Modifier.height(20.dp))
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                MiniLabel("方位")
-                Text("保存后添加", fontSize = 12.5.sp, color = MutedLight)
-            }
-            Spacer(Modifier.height(8.dp))
-            Text(
-                "方位是模块内的位置划分（如「桌面」「第一层抽屉」），用来描述物品放在哪。",
-                fontSize = 12.sp, color = MutedLight, lineHeight = 19.sp
-            )
             Spacer(Modifier.height(40.dp))
+
         }
     }
 }

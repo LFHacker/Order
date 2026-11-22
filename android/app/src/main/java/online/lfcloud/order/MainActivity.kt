@@ -231,11 +231,6 @@ private fun OrderApp(vm: OrderViewModel = viewModel()) {
                                 "删除后与附件一起进入回收站，30 天内可恢复。",
                             fontSize = 13.sp, color = Muted, lineHeight = 21.sp
                         )
-                        Spacer(Modifier.height(12.dp))
-                        Text(
-                            "关联它的物品会显示「对方已删除」，不会一起被删。",
-                            fontSize = 11.5.sp, color = Muted, lineHeight = 18.sp
-                        )
                     }
                 },
                 confirmButton = {

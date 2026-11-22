@@ -221,14 +221,13 @@ private fun AddEventDialog(
                     }
                 }
                 Spacer(Modifier.height(14.dp))
-                Text("备注（可选）", fontSize = 12.sp, color = Muted)
+                Text("备注", fontSize = 12.sp, color = Muted)
                 Spacer(Modifier.height(6.dp))
                 Box(
                     Modifier.fillMaxWidth().height(64.dp).clip(RoundedCornerShape(8.dp))
                         .background(Color(0xFFF8FAFA)).padding(10.dp)
                 ) {
                     if (note.isEmpty()) {
-                        Text("例如：借给王工，说好下周还", fontSize = 13.sp, color = MutedLight)
                     }
                     BasicTextField(
                         value = note,

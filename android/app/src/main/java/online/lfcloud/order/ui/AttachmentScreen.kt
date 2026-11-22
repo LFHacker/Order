@@ -117,7 +117,6 @@ fun AttachmentScreen(
         if (list.isEmpty()) {
             EmptyHint(
                 title = "还没有附件",
-                desc = "给这件东西拍张照，或者把发票、\n说明书拍下来存这儿。",
                 cta = "选一张图片",
                 iconId = "box",
                 onCreate = {

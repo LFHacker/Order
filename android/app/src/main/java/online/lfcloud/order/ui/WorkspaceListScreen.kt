@@ -121,7 +121,6 @@ fun WorkspaceListScreen(
         when {
             vm.workspaces.isEmpty() -> EmptyHint(
                 title = "还没有工作区",
-                desc = "工作区是物品的容器。\n先建一个「家」或「公司」，再把物品放进去。",
                 cta = "新建工作区",
                 iconId = "home",
                 onCreate = onCreate
@@ -292,7 +291,6 @@ fun SimpleSearchBar(
 @Composable
 fun EmptyHint(
     title: String,
-    desc: String,
     cta: String,
     iconId: String,
     onCreate: () -> Unit
@@ -311,9 +309,7 @@ fun EmptyHint(
         }
         Spacer(Modifier.height(22.dp))
         Text(title, fontSize = 16.5.sp, fontWeight = FontWeight.Bold, color = Ink)
-        Spacer(Modifier.height(9.dp))
-        Text(desc, fontSize = 13.sp, color = Muted, lineHeight = 22.sp, textAlign = TextAlign.Center)
-        Spacer(Modifier.height(26.dp))
+        Spacer(Modifier.height(24.dp))
         Row(
             Modifier.width(190.dp).height(50.dp).clip(RoundedCornerShape(25.dp))
                 .background(Teal).clickable(onClick = onCreate),
@@ -335,8 +331,6 @@ fun NoResultHint(onReset: () -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text("没有符合条件的结果", fontSize = 15.sp, color = Ink2)
-        Spacer(Modifier.height(8.dp))
-        Text("试试放宽筛选条件", fontSize = 12.5.sp, color = Muted)
         Spacer(Modifier.height(18.dp))
         Text("清空筛选", fontSize = 14.sp, color = Teal, fontWeight = FontWeight.Medium,
             modifier = Modifier.clickable(onClick = onReset))

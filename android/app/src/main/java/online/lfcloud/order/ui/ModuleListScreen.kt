@@ -122,7 +122,6 @@ fun ModuleListScreen(
         when {
             vm.moduleCount(wsId) == 0 -> EmptyHint(
                 title = "这个工作区还没有模块",
-                desc = "模块是工作区里的「一类地方」——\n桌面、抽屉、衣柜、书架都算。",
                 cta = "新建模块",
                 iconId = "box",
                 onCreate = onCreate

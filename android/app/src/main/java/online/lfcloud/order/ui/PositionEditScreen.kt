@@ -110,7 +110,6 @@ fun PositionEditScreen(
             Spacer(Modifier.height(4.dp))
             Box(Modifier.fillMaxWidth().height(44.dp), contentAlignment = Alignment.CenterStart) {
                 if (vm.posName.isEmpty()) {
-                    Text("例如：第一层", fontSize = 16.sp, color = MutedLight)
                 }
                 BasicTextField(
                     value = vm.posName,
@@ -130,7 +129,6 @@ fun PositionEditScreen(
             Spacer(Modifier.height(20.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 MiniLabel("常用")
-                Text("点一下填入名称", fontSize = 12.5.sp, color = MutedLight)
             }
             Spacer(Modifier.height(9.dp))
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -157,11 +155,6 @@ fun PositionEditScreen(
                     }
                 }
             }
-            Spacer(Modifier.height(9.dp))
-            Text(
-                "也可以用「第一层」「抽屉 A」这类自己的叫法，最多 40 字",
-                fontSize = 11.5.sp, color = MutedLight
-            )
 
             Spacer(Modifier.height(24.dp))
             MiniLabel("位置")
@@ -173,11 +166,6 @@ fun PositionEditScreen(
             }
             Spacer(Modifier.height(10.dp))
             Box(Modifier.fillMaxWidth().height(1.dp).background(HairLine))
-            Spacer(Modifier.height(9.dp))
-            Text(
-                "保存后可以在列表里按住手柄拖动调整顺序",
-                fontSize = 11.5.sp, color = MutedLight
-            )
             Spacer(Modifier.height(40.dp))
         }
     }

@@ -121,7 +121,6 @@ fun WorkspaceEditScreen(
             Spacer(Modifier.height(4.dp))
             Box(Modifier.fillMaxWidth().height(44.dp), contentAlignment = Alignment.CenterStart) {
                 if (vm.wsName.isEmpty()) {
-                    Text("例如：家", fontSize = 16.sp, color = MutedLight)
                 }
                 BasicTextField(
                     value = vm.wsName,
@@ -147,7 +146,6 @@ fun WorkspaceEditScreen(
             Spacer(Modifier.height(20.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 MiniLabel("图标")
-                Text("可选", fontSize = 12.5.sp, color = MutedLight)
             }
             Spacer(Modifier.height(9.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(9.dp)) {
@@ -195,7 +193,6 @@ fun WorkspaceEditScreen(
             Spacer(Modifier.height(4.dp))
             Box(Modifier.fillMaxWidth().height(76.dp)) {
                 if (vm.wsDesc.isEmpty()) {
-                    Text("例如：主卧、客厅与阳台的收纳区域", fontSize = 15.sp, color = MutedLight)
                 }
                 BasicTextField(
                     value = vm.wsDesc,

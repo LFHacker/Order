@@ -89,7 +89,6 @@ fun ItemEditScreen(
             Spacer(Modifier.height(4.dp))
             Box(Modifier.fillMaxWidth().height(44.dp), contentAlignment = Alignment.CenterStart) {
                 if (vm.itName.isEmpty()) {
-                    Text("例如：螺丝刀套装", fontSize = 16.sp, color = MutedLight)
                 }
                 BasicTextField(
                     value = vm.itName,
@@ -189,7 +188,6 @@ fun ItemEditScreen(
             Spacer(Modifier.height(4.dp))
             Box(Modifier.fillMaxWidth().height(80.dp)) {
                 if (vm.itNote.isEmpty()) {
-                    Text("例如：十字和一字各一组，常用的是 PH2", fontSize = 15.sp, color = MutedLight)
                 }
                 BasicTextField(
                     value = vm.itNote,
