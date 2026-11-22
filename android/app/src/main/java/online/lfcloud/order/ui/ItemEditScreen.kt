@@ -107,10 +107,7 @@ fun ItemEditScreen(
             }
 
             Spacer(Modifier.height(20.dp))
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                MiniLabel("类别")
-                Text("单选", fontSize = 12.5.sp, color = MutedLight)
-            }
+            MiniLabel("类别")
             Spacer(Modifier.height(9.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Categories.all.forEach { c ->
@@ -145,10 +142,7 @@ fun ItemEditScreen(
             Box(Modifier.fillMaxWidth().height(1.dp).background(HairLine))
 
             Spacer(Modifier.height(20.dp))
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                MiniLabel("数量")
-                Text("默认 1", fontSize = 12.5.sp, color = MutedLight)
-            }
+            MiniLabel("数量")
             Spacer(Modifier.height(4.dp))
             Row(
                 Modifier.fillMaxWidth().height(48.dp),
@@ -207,9 +201,7 @@ fun ItemEditScreen(
             }
             Box(Modifier.fillMaxWidth().height(1.dp).background(HairLine))
 
-            Spacer(Modifier.height(18.dp))
-            Text("附件、关系、事件在保存后到详情页里添加",
-                fontSize = 11.5.sp, color = MutedLight)
+            
             Spacer(Modifier.height(40.dp))
         }
     }

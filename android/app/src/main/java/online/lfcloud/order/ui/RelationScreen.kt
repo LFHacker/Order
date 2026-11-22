@@ -1,7 +1,9 @@
 package online.lfcloud.order.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -78,7 +80,7 @@ fun RelationScreen(
             Text("关系", fontSize = 24.sp, fontWeight = FontWeight.Bold,
                 letterSpacing = (-0.6).sp, color = Ink)
             Spacer(Modifier.height(4.dp))
-            Text("${list.size} 条关系 · 双向", fontSize = 12.5.sp, color = Muted)
+            Text("${list.size} 条关系", fontSize = 12.5.sp, color = Muted)
             Spacer(Modifier.height(10.dp))
         }
 
@@ -88,10 +90,7 @@ fun RelationScreen(
                 Spacer(Modifier.height(60.dp))
                 Text("还没有关系", fontSize = 15.sp, color = Ink)
                 Spacer(Modifier.height(8.dp))
-                Text(
-                    "关系用来记「这两件东西是一起用的」\n「这件收在那件里」。建了之后两边都能看到。",
-                    fontSize = 12.5.sp, color = Muted, lineHeight = 20.sp
-                )
+                
                 Spacer(Modifier.height(20.dp))
                 Text("添加关系", fontSize = 14.sp, color = Teal, fontWeight = FontWeight.Medium,
                     modifier = Modifier.clickable { showAdd = true })
@@ -103,7 +102,10 @@ fun RelationScreen(
                     Column {
                         Row(
                             Modifier.fillMaxWidth()
-                                .clickable { other?.let { onOpenItem(it) } }
+                                .combinedClickable(
+                                    onClick = { other?.let { onOpenItem(it) } },
+                                    onLongClick = { confirmDelete = rel }
+                                )
                                 .padding(horizontal = 16.dp, vertical = 13.dp)
                         ) {
                             Box(
@@ -143,14 +145,11 @@ fun RelationScreen(
                                     }
                                 }
                                 Spacer(Modifier.height(6.dp))
-                                Text("${rel.createdAt.relativeText()}建立 · 双向",
+                                Text("${rel.createdAt.relativeText()}建立",
                                     fontSize = 11.5.sp, color = Color(0xFFB8B8B8))
                             }
                         }
-                        Row(Modifier.padding(start = 16.dp, end = 16.dp, bottom = 10.dp)) {
-                            Text("解除关系", fontSize = 12.sp, color = Danger,
-                                modifier = Modifier.clickable { confirmDelete = rel })
-                        }
+                        
                         Box(Modifier.fillMaxWidth().padding(start = 16.dp).height(1.dp)
                             .background(HairLine))
                     }

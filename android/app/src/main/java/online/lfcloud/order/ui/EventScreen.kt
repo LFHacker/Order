@@ -2,6 +2,7 @@ package online.lfcloud.order.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -74,7 +76,7 @@ fun EventScreen(
         }
 
         Column(Modifier.padding(horizontal = 16.dp)) {
-            Text("事件", fontSize = 24.sp, fontWeight = FontWeight.Bold,
+            Text("时间线", fontSize = 24.sp, fontWeight = FontWeight.Bold,
                 letterSpacing = (-0.6).sp, color = Ink)
             Spacer(Modifier.height(4.dp))
             Text(
@@ -90,10 +92,7 @@ fun EventScreen(
                 Spacer(Modifier.height(60.dp))
                 Text("还没有记录", fontSize = 15.sp, color = Ink)
                 Spacer(Modifier.height(8.dp))
-                Text(
-                    "记下购入、借出、维修、盘点，\n以后能查到这件东西都经历过什么。",
-                    fontSize = 12.5.sp, color = Muted, lineHeight = 20.sp
-                )
+                
                 Spacer(Modifier.height(20.dp))
                 Text("记一笔", fontSize = 14.sp, color = Teal, fontWeight = FontWeight.Medium,
                     modifier = Modifier.clickable { showAdd = true })
@@ -117,7 +116,12 @@ fun EventScreen(
                             }
                         }
                         Spacer(Modifier.width(11.dp))
-                        Column(Modifier.weight(1f).padding(bottom = 14.dp)) {
+                        Column(
+                            Modifier.weight(1f).padding(bottom = 14.dp)
+                                .pointerInput(ev.id) {
+                                    detectTapGestures(onLongPress = { confirmDelete = ev })
+                                }
+                        ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(ev.type, fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold,
                                     color = Ink)
@@ -141,9 +145,7 @@ fun EventScreen(
                                 Spacer(Modifier.height(4.dp))
                                 Text(ev.note, fontSize = 12.5.sp, color = Color(0xFF3A3A3A))
                             }
-                            Spacer(Modifier.height(6.dp))
-                            Text("删除这条", fontSize = 11.5.sp, color = Danger,
-                                modifier = Modifier.clickable { confirmDelete = ev })
+                            
                         }
                     }
                     if (index != list.lastIndex) {
@@ -236,9 +238,7 @@ private fun AddEventDialog(
                         modifier = Modifier.fillMaxSize()
                     )
                 }
-                Spacer(Modifier.height(10.dp))
-                Text("时间记为该事件的当前时间；借出会把物品标成「借出中」。",
-                    fontSize = 11.sp, color = MutedLight, lineHeight = 17.sp)
+                
             }
         },
         confirmButton = {

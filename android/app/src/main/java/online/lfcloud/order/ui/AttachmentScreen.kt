@@ -218,11 +218,7 @@ fun AttachmentScreen(
                     Text("添加图片", fontSize = 14.sp, color = Teal)
                 }
 
-                Text(
-                    "图片会压缩到 10 MB 以内再上传；PDF 等文件不压缩。",
-                    fontSize = 11.5.sp, color = Color(0xFFB4B4B4),
-                    modifier = Modifier.padding(horizontal = 16.dp)
-                )
+                
             }
         }
     }
