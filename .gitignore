@@ -1,0 +1,45 @@
+# ---- Python / PyInstaller ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+build/
+dist/
+*.spec
+
+# ---- Android / Gradle ----
+.gradle/
+local.properties
+*.iml
+.idea/
+app/build/
+captures/
+*.apk
+*.aab
+*.jks
+*.keystore
+
+# ---- 编译中间产物 ----
+*.o
+*.obj
+*.pyd
+*.so
+*.dll
+CMakeFiles/
+CMakeCache.txt
+cmake-build-*/
+
+# ---- 本地配置与密钥（含凭证，禁止提交）----
+config.local.*
+*.secret
+.env
+
+# ---- 临时与系统文件 ----
+*.log
+*.tmp
+*.bak
+Thumbs.db
+desktop.ini
+.DS_Store
