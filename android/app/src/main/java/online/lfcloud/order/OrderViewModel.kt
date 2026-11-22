@@ -89,6 +89,24 @@ class OrderViewModel(app: Application) : AndroidViewModel(app) {
     var events by mutableStateOf<List<ItemEvent>>(itemRepo.loadEvents())
         private set
 
+
+    init {
+        // 旧数据迁移：还没主图、但有图片附件的物品，取最新一张图片作为主图
+        val migrated = items.map { item ->
+            if (item.imageUri == null) {
+                val newest = attachments
+                    .filter { it.itemId == item.id && it.kind == "image" && it.uri != null }
+                    .maxByOrNull { it.addedAt }
+                if (newest?.uri != null) item.copy(imageUri = newest.uri) else item
+            } else {
+                item
+            }
+        }
+        if (migrated != items) {
+            items = migrated
+            itemRepo.saveItems(items)
+        }
+    }
     var openedPositionId by mutableStateOf<String?>(null)
         private set
     var openedItemId by mutableStateOf<String?>(null)

@@ -72,22 +72,47 @@ fun ImageCropDialog(
     var offsetX by remember(uri) { mutableStateOf(0f) }
     var offsetY by remember(uri) { mutableStateOf(0f) }
     var saving by remember(uri) { mutableStateOf(false) }
+    var failed by remember(uri) { mutableStateOf(false) }
 
     LaunchedEffect(uri) {
         source = withContext(Dispatchers.IO) {
-            runCatching {
-                var bmp: Bitmap? = null
+            val decoded = runCatching {
+                // 先探尺寸，再按需采样解码，避免大图直接 OOM（OOM 会被吞掉，表现为一直读不出来）
+                val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
                 context.contentResolver.openInputStream(uri)?.use { ins ->
-                    bmp = BitmapFactory.decodeStream(ins)
+                    BitmapFactory.decodeStream(ins, null, bounds)
                 }
-                val b = bmp
-                if (b != null && (b.width > 4000 || b.height > 4000)) {
-                    Bitmap.createScaledBitmap(b, b.width / 2, b.height / 2, true)
-                } else {
-                    b
+                var sample = 1
+                val longest = maxOf(bounds.outWidth, bounds.outHeight)
+                while (longest / sample > 2048) sample *= 2
+                val opts = BitmapFactory.Options().apply {
+                    inSampleSize = sample
+                    inPreferredConfig = Bitmap.Config.ARGB_8888
+                }
+                context.contentResolver.openInputStream(uri)?.use { ins ->
+                    BitmapFactory.decodeStream(ins, null, opts)
                 }
             }.getOrNull()
+            if (decoded != null) {
+                decoded
+            } else {
+                // HEIC 等格式 BitmapFactory 读不了的，再试一次 ImageDecoder
+                runCatching {
+                    if (android.os.Build.VERSION.SDK_INT >= 28) {
+                        val src = android.graphics.ImageDecoder.createSource(
+                            context.contentResolver, uri
+                        )
+                        android.graphics.ImageDecoder.decodeBitmap(
+                            src
+                        ) { decoder, _, _ ->
+                            decoder.allocator = android.graphics.ImageDecoder.ALLOCATOR_SOFTWARE
+                            decoder.setTargetSampleSize(2)
+                        }
+                    } else null
+                }.getOrNull()
+            }
         }
+        failed = source == null
     }
 
     Dialog(
@@ -118,7 +143,10 @@ fun ImageCropDialog(
             val bmp = source
             if (bmp == null) {
                 Box(Modifier.fillMaxWidth().height(220.dp), contentAlignment = Alignment.Center) {
-                    Text("读取图片…", fontSize = 14.sp, color = Color(0xFF7A8B88))
+                    Text(
+                        if (failed) "无法读取这张图片" else "读取图片…",
+                        fontSize = 14.sp, color = Color(0xFF7A8B88)
+                    )
                 }
             } else {
                 val imageBmp = bmp.asImageBitmap()
@@ -178,28 +206,61 @@ fun ImageCropDialog(
                         LaunchedEffect(Unit) {
                             val srcLeft = (boxW - dispW) / 2f + offX
                             val srcTop = (boxH - dispH) / 2f + offY
+                            val wantW = boxW / effScale
+                            val wantH = boxH / effScale
                             val srcX = ((-srcLeft) / effScale)
-                                .coerceIn(0f, max(0f, bmp.width - boxW / effScale))
+                                .coerceIn(0f, max(0f, bmp.width - wantW))
                             val srcY = ((-srcTop) / effScale)
-                                .coerceIn(0f, max(0f, bmp.height - boxH / effScale))
-                            val srcW = (boxW / effScale).coerceAtMost(bmp.width - srcX)
-                            val srcH = (boxH / effScale).coerceAtMost(bmp.height - srcY)
+                                .coerceIn(0f, max(0f, bmp.height - wantH))
+                            val srcW = wantW.coerceAtMost((bmp.width - srcX).coerceAtLeast(1f))
+                            val srcH = wantH.coerceAtMost((bmp.height - srcY).coerceAtLeast(1f))
+
                             val path = withContext(Dispatchers.IO) {
-                                runCatching {
-                                    val cropped = Bitmap.createBitmap(
+                                // 正常按裁剪框取；万一越界/失败，退化为整图按目标比例居中裁切
+                                val cropped = runCatching {
+                                    Bitmap.createBitmap(
                                         bmp, srcX.toInt(), srcY.toInt(),
                                         srcW.toInt().coerceAtLeast(1),
                                         srcH.toInt().coerceAtLeast(1)
                                     )
-                                    val dir = File(context.filesDir, "images").apply { mkdirs() }
-                                    val out = File(dir, "img_${System.currentTimeMillis()}.jpg")
-                                    FileOutputStream(out).use { fos ->
-                                        cropped.compress(Bitmap.CompressFormat.JPEG, 94, fos)
-                                    }
-                                    "file://${out.absolutePath}"
-                                }.getOrNull()
+                                }.getOrElse {
+                                    runCatching {
+                                        val w = bmp.width
+                                        val h = bmp.height
+                                        val targetH = (w / aspectRatio).toInt()
+                                        if (targetH <= h) {
+                                            Bitmap.createBitmap(bmp, 0, (h - targetH) / 2, w, targetH)
+                                        } else {
+                                            val targetW = (h * aspectRatio).toInt()
+                                            Bitmap.createBitmap(
+                                                bmp, (w - targetW) / 2, 0,
+                                                targetW.coerceAtLeast(1), h
+                                            )
+                                        }
+                                    }.getOrNull()
+                                }
+                                if (cropped == null) {
+                                    null
+                                } else {
+                                    runCatching {
+                                        val dir = File(context.filesDir, "images")
+                                            .apply { mkdirs() }
+                                        val out = File(
+                                            dir, "img_${System.currentTimeMillis()}.jpg"
+                                        )
+                                        FileOutputStream(out).use { fos ->
+                                            cropped.compress(Bitmap.CompressFormat.JPEG, 94, fos)
+                                        }
+                                        "file://${out.absolutePath}"
+                                    }.getOrNull()
+                                }
                             }
-                            if (path != null) onDone(path) else saving = false
+                            if (path != null) {
+                                onDone(path)
+                            } else {
+                                saving = false
+                                onCancel()
+                            }
                         }
                     }
                 }
