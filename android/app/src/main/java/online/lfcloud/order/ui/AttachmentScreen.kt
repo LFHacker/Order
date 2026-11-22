@@ -58,6 +58,9 @@ import online.lfcloud.order.ui.theme.Teal
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import online.lfcloud.order.ui.theme.Bg
+import online.lfcloud.order.ui.theme.Soft2
+import online.lfcloud.order.ui.theme.MutedLight
 
 @Composable
 fun AttachmentScreen(
@@ -86,7 +89,7 @@ fun AttachmentScreen(
         }
     }
 
-    Column(Modifier.fillMaxSize().background(Color.White)) {
+    Column(Modifier.fillMaxSize().background(Bg)) {
 
         Box(Modifier.fillMaxWidth().height(50.dp)) {
             Icon(
@@ -137,7 +140,7 @@ fun AttachmentScreen(
                                     Box(
                                         Modifier.weight(1f).aspectRatio(1f)
                                             .clip(RoundedCornerShape(10.dp))
-                                            .background(Color(0xFFF5F7F7))
+                                            .background(Soft2)
                                             .clickable { preview = att }
                                     ) {
                                         val bmp = rememberUriBitmap(att.uri)
@@ -148,7 +151,7 @@ fun AttachmentScreen(
                                         } else {
                                             Icon(
                                                 IconLibrary.vector("box"), contentDescription = null,
-                                                tint = Color(0xFF9FB2AE),
+                                                tint = Muted,
                                                 modifier = Modifier.size(22.dp).align(Alignment.Center)
                                             )
                                         }
@@ -173,11 +176,11 @@ fun AttachmentScreen(
                             ) {
                                 Box(
                                     Modifier.size(34.dp).clip(RoundedCornerShape(9.dp))
-                                        .background(Color(0xFFF5F7F7)),
+                                        .background(Soft2),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Icon(IconLibrary.vector("layers"), contentDescription = null,
-                                        tint = Color(0xFF8FA5A1), modifier = Modifier.size(17.dp))
+                                        tint = Muted, modifier = Modifier.size(17.dp))
                                 }
                                 Spacer(Modifier.width(11.dp))
                                 Column(Modifier.weight(1f)) {
@@ -201,7 +204,7 @@ fun AttachmentScreen(
                 ) {
                     Box(
                         Modifier.size(34.dp).clip(RoundedCornerShape(9.dp))
-                            .background(Color.White)
+                            .background(Bg)
                             .clickable {
                                 picker.launch(
                                     PickVisualMediaRequest(
@@ -255,7 +258,7 @@ fun AttachmentScreen(
                         Icon(IconLibrary.vector("layers"), contentDescription = null,
                             tint = Color(0xFF6E8B86), modifier = Modifier.size(56.dp))
                         Spacer(Modifier.height(12.dp))
-                        Text(att.displayName, fontSize = 14.sp, color = Color(0xFFB9C9C6))
+                        Text(att.displayName, fontSize = 14.sp, color = MutedLight)
                     }
                 }
                 Column(Modifier.align(Alignment.BottomCenter).padding(bottom = 36.dp)) {

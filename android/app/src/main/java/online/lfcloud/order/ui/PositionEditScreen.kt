@@ -41,6 +41,7 @@ import online.lfcloud.order.ui.theme.Ink2
 import online.lfcloud.order.ui.theme.Muted
 import online.lfcloud.order.ui.theme.MutedLight
 import online.lfcloud.order.ui.theme.Teal
+import online.lfcloud.order.ui.theme.Bg
 
 private val Presets = listOf("上层", "中层", "下层", "左侧", "右侧", "内侧", "外侧", "顶层", "底层")
 
@@ -54,7 +55,7 @@ fun PositionEditScreen(
     val module = vm.modules.firstOrNull { it.id == vm.positionModuleId }
     val workspace = vm.workspaces.firstOrNull { it.id == module?.workspaceId }
 
-    Column(Modifier.fillMaxSize().background(Color.White)) {
+    Column(Modifier.fillMaxSize().background(Bg)) {
 
         Box(Modifier.fillMaxWidth().height(52.dp)) {
             Icon(
@@ -140,7 +141,7 @@ fun PositionEditScreen(
                                 Modifier.height(32.dp)
                                     .clip(RoundedCornerShape(8.dp))
                                     .background(if (selected) Color(0xFFF0FBF9) else Color.White)
-                                    .border(1.dp, if (selected) Teal else Color(0xFFEFEFEF), RoundedCornerShape(8.dp))
+                                    .border(1.dp, if (selected) Teal else HairLine, RoundedCornerShape(8.dp))
                                     .clickable { vm.posName = preset; vm.posError = null }
                                     .padding(horizontal = 13.dp),
                                 contentAlignment = Alignment.Center

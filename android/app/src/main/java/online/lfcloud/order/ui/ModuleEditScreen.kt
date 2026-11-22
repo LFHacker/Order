@@ -46,6 +46,7 @@ import online.lfcloud.order.ui.theme.Muted
 import online.lfcloud.order.ui.theme.MutedLight
 import online.lfcloud.order.ui.theme.Teal
 import online.lfcloud.order.ui.theme.TealSofter
+import online.lfcloud.order.ui.theme.Bg
 
 private val ModuleQuickIcons = listOf("monitor", "drawer", "chest", "shelf", "box")
 
@@ -68,7 +69,7 @@ fun ModuleEditScreen(
         return
     }
 
-    Column(Modifier.fillMaxSize().background(Color.White)) {
+    Column(Modifier.fillMaxSize().background(Bg)) {
 
         Box(Modifier.fillMaxWidth().height(52.dp)) {
             Icon(

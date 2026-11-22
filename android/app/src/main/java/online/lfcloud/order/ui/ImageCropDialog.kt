@@ -55,6 +55,7 @@ import java.io.FileOutputStream
 import kotlin.math.max
 import kotlin.math.roundToInt
 import androidx.compose.foundation.layout.requiredSize
+import online.lfcloud.order.ui.theme.MutedLight
 
 /**
  * 选完图先裁剪：裁成显示区的比例再落盘，避免整张图塞进固定大小的位置。
@@ -127,7 +128,7 @@ fun ImageCropDialog(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("取消", fontSize = 15.sp, color = Color(0xFFB9C9C6),
+                Text("取消", fontSize = 15.sp, color = MutedLight,
                     modifier = Modifier.clickable(onClick = onCancel))
                 Text("裁剪图片", fontSize = 16.sp, fontWeight = FontWeight.SemiBold,
                     color = Color.White)

@@ -45,6 +45,7 @@ import online.lfcloud.order.ui.theme.Muted
 import online.lfcloud.order.ui.theme.Teal
 import online.lfcloud.order.ui.theme.TealDeep
 import online.lfcloud.order.ui.theme.TealSofter
+import online.lfcloud.order.ui.theme.Bg
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,7 +62,7 @@ fun ModuleSortFilterSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = Color.White
+        containerColor = Bg
     ) {
         Column(Modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
 
@@ -163,7 +164,7 @@ fun DeleteModuleDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = Color.White,
+        containerColor = Bg,
         title = {
             Text("删除「${target.name}」？",
                 fontSize = 16.5.sp, fontWeight = FontWeight.Bold, color = Ink)
@@ -198,7 +199,7 @@ fun DeletePositionDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = Color.White,
+        containerColor = Bg,
         title = {
             Text("删除「${target.name}」？",
                 fontSize = 16.5.sp, fontWeight = FontWeight.Bold, color = Ink)

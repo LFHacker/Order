@@ -46,6 +46,7 @@ import online.lfcloud.order.ui.theme.Muted
 import online.lfcloud.order.ui.theme.MutedLight
 import online.lfcloud.order.ui.theme.Teal
 import online.lfcloud.order.ui.theme.TealSofter
+import online.lfcloud.order.ui.theme.Bg
 
 private val QuickIcons = listOf("home", "building", "house", "briefcase", "box")
 
@@ -70,7 +71,7 @@ fun WorkspaceEditScreen(
         return
     }
 
-    Column(Modifier.fillMaxSize().background(Color.White)) {
+    Column(Modifier.fillMaxSize().background(Bg)) {
 
         // 顶栏：标题居中，保存横排不换行
         Box(Modifier.fillMaxWidth().height(52.dp)) {

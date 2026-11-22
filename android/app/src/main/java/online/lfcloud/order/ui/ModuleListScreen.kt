@@ -49,6 +49,8 @@ import online.lfcloud.order.ui.theme.Ink
 import online.lfcloud.order.ui.theme.Ink2
 import online.lfcloud.order.ui.theme.Muted
 import online.lfcloud.order.ui.theme.Teal
+import online.lfcloud.order.ui.theme.Bg
+import online.lfcloud.order.ui.theme.MutedLight
 
 @Composable
 fun ModuleListScreen(
@@ -68,7 +70,7 @@ fun ModuleListScreen(
     val recent = visible.filter { now - it.updatedAt < 7L * 24 * 3600 * 1000 }
     val earlier = visible.filter { now - it.updatedAt >= 7L * 24 * 3600 * 1000 }
 
-    Column(Modifier.fillMaxSize().background(Color.White)) {
+    Column(Modifier.fillMaxSize().background(Bg)) {
 
         // 顶栏：返回 + 工作区名 + 搜索/新建
         Box(Modifier.fillMaxWidth().height(52.dp)) {
@@ -193,7 +195,7 @@ private fun ModuleRow(
                     )
                 }
                 Icon(Icons.Filled.KeyboardArrowRight, contentDescription = null,
-                    tint = Color(0xFFCFCFCF), modifier = Modifier.size(18.dp))
+                    tint = MutedLight, modifier = Modifier.size(18.dp))
             }
 
             DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {

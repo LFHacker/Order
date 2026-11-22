@@ -49,6 +49,9 @@ import online.lfcloud.order.ui.theme.Muted
 import online.lfcloud.order.ui.theme.Teal
 import androidx.compose.foundation.Image
 import androidx.compose.ui.layout.ContentScale
+import online.lfcloud.order.ui.theme.Bg
+import online.lfcloud.order.ui.theme.Soft2
+import online.lfcloud.order.ui.theme.MutedLight
 
 @Composable
 fun ItemListScreen(
@@ -63,7 +66,7 @@ fun ItemListScreen(
     val module = vm.modules.firstOrNull { it.id == position?.moduleId }
     val list = vm.itemsOf(position?.id)
 
-    Column(Modifier.fillMaxSize().background(Color.White)) {
+    Column(Modifier.fillMaxSize().background(Bg)) {
 
         Box(Modifier.fillMaxWidth().height(52.dp)) {
             Icon(
@@ -133,7 +136,7 @@ private fun ItemRow(
             ) {
                 Box(
                     Modifier.size(46.dp).clip(RoundedCornerShape(10.dp))
-                        .background(Color(0xFFF5F7F7)),
+                        .background(Soft2),
                     contentAlignment = Alignment.Center
                 ) {
                     val thumb = rememberUriBitmap(item.imageUri)
@@ -143,7 +146,7 @@ private fun ItemRow(
                     } else {
                         Icon(
                             IconLibrary.vector(Categories.iconOf(item.category)),
-                            contentDescription = null, tint = Color(0xFF5A6E6A),
+                            contentDescription = null, tint = Muted,
                             modifier = Modifier.size(22.dp)
                         )
                     }
@@ -166,7 +169,7 @@ private fun ItemRow(
                         fontSize = 12.5.sp, color = Muted)
                 }
                 Icon(Icons.Filled.KeyboardArrowRight, contentDescription = null,
-                    tint = Color(0xFFCFCFCF), modifier = Modifier.size(18.dp))
+                    tint = MutedLight, modifier = Modifier.size(18.dp))
             }
 
             DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {

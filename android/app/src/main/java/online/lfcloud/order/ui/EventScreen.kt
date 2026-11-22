@@ -49,6 +49,10 @@ import online.lfcloud.order.ui.theme.Ink
 import online.lfcloud.order.ui.theme.Muted
 import online.lfcloud.order.ui.theme.MutedLight
 import online.lfcloud.order.ui.theme.Teal
+import online.lfcloud.order.ui.theme.Bg
+import online.lfcloud.order.ui.theme.Soft
+import online.lfcloud.order.ui.theme.Soft2
+import online.lfcloud.order.ui.theme.Ink2
 
 @Composable
 fun EventScreen(
@@ -60,7 +64,7 @@ fun EventScreen(
     var showAdd by remember { mutableStateOf(false) }
     var confirmDelete by remember { mutableStateOf<ItemEvent?>(null) }
 
-    Column(Modifier.fillMaxSize().background(Color.White)) {
+    Column(Modifier.fillMaxSize().background(Bg)) {
 
         Box(Modifier.fillMaxWidth().height(50.dp)) {
             Icon(
@@ -108,11 +112,11 @@ fun EventScreen(
                             Spacer(Modifier.height(7.dp))
                             Box(
                                 Modifier.size(8.dp).clip(RoundedCornerShape(4.dp))
-                                    .background(if (index == 0) Teal else Color(0xFFCFCFCF))
+                                    .background(if (index == 0) Teal else MutedLight)
                             )
                             if (index != list.lastIndex) {
                                 Box(Modifier.width(1.dp).height(46.dp)
-                                    .background(Color(0xFFE6E6E6)))
+                                    .background(HairLine))
                             }
                         }
                         Spacer(Modifier.width(11.dp))
@@ -143,7 +147,7 @@ fun EventScreen(
                             )
                             if (ev.note.isNotBlank()) {
                                 Spacer(Modifier.height(4.dp))
-                                Text(ev.note, fontSize = 12.5.sp, color = Color(0xFF3A3A3A))
+                                Text(ev.note, fontSize = 12.5.sp, color = Ink2)
                             }
                             
                         }
@@ -171,7 +175,7 @@ fun EventScreen(
     confirmDelete?.let { ev ->
         AlertDialog(
             onDismissRequest = { confirmDelete = null },
-            containerColor = Color.White,
+            containerColor = Bg,
             title = { Text("删除这条记录？", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Ink) },
             text = { Text("只删这条「${ev.type}」记录，物品本身不受影响。",
                 fontSize = 13.sp, color = Muted, lineHeight = 20.sp) },
@@ -199,7 +203,7 @@ private fun AddEventDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = Color.White,
+        containerColor = Bg,
         title = { Text("记一笔", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Ink) },
         text = {
             Column {
@@ -210,12 +214,12 @@ private fun AddEventDialog(
                         val on = type == t
                         Box(
                             Modifier.clip(RoundedCornerShape(7.dp))
-                                .background(if (on) Color(0xFFF0FBF9) else Color(0xFFF6F6F6))
+                                .background(if (on) Color(0xFFF0FBF9) else Soft2)
                                 .clickable { type = t }
                                 .padding(horizontal = 9.dp, vertical = 5.dp)
                         ) {
                             Text(t, fontSize = 12.sp,
-                                color = if (on) Color(0xFF0B8474) else Color(0xFF3A3A3A),
+                                color = if (on) Color(0xFF0B8474) else Ink2,
                                 fontWeight = if (on) FontWeight.Medium else FontWeight.Normal)
                         }
                     }
@@ -225,7 +229,7 @@ private fun AddEventDialog(
                 Spacer(Modifier.height(6.dp))
                 Box(
                     Modifier.fillMaxWidth().height(64.dp).clip(RoundedCornerShape(8.dp))
-                        .background(Color(0xFFF8FAFA)).padding(10.dp)
+                        .background(Soft).padding(10.dp)
                 ) {
                     if (note.isEmpty()) {
                     }

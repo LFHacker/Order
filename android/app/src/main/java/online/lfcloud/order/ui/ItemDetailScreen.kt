@@ -55,6 +55,9 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import online.lfcloud.order.ui.theme.Bg
+import online.lfcloud.order.ui.theme.Soft2
+import online.lfcloud.order.ui.theme.MutedLight
 
 @Composable
 fun ItemDetailScreen(
@@ -90,7 +93,7 @@ fun ItemDetailScreen(
         }
     }
 
-    Column(Modifier.fillMaxSize().background(Color.White)) {
+    Column(Modifier.fillMaxSize().background(Bg)) {
 
         Box(Modifier.fillMaxWidth().height(50.dp)) {
             Icon(
@@ -130,7 +133,7 @@ fun ItemDetailScreen(
                 Modifier.fillMaxWidth().padding(horizontal = 16.dp)
                     .aspectRatio(1.6f)
                     .clip(RoundedCornerShape(14.dp))
-                    .border(1.dp, Color(0xFFECEFEF), RoundedCornerShape(14.dp))
+                    .border(1.dp, HairLine, RoundedCornerShape(14.dp))
             ) {
                 val coverBmp = rememberUriBitmap(item.imageUri)
                 if (coverBmp != null) {
@@ -155,7 +158,7 @@ fun ItemDetailScreen(
                 } else {
                     Box(
                         Modifier.fillMaxSize().clip(RoundedCornerShape(14.dp))
-                            .background(Color(0xFFFAFAFA))
+                            .background(Soft2)
                             .clickable {
                                 picker.launch(
                                     PickVisualMediaRequest(
@@ -166,7 +169,7 @@ fun ItemDetailScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(Icons.Filled.Add, contentDescription = null,
-                            tint = Color(0xFFB9C9C6), modifier = Modifier.size(34.dp))
+                            tint = MutedLight, modifier = Modifier.size(34.dp))
                     }
                 }
             }
@@ -252,7 +255,7 @@ private fun DetailTab(
             )
             if (count != null && count > 0) {
                 Spacer(Modifier.width(4.dp))
-                Text("$count", fontSize = 11.sp, color = Color(0xFFB8B8B8))
+                Text("$count", fontSize = 11.sp, color = MutedLight)
             }
         }
         Spacer(Modifier.height(9.dp))

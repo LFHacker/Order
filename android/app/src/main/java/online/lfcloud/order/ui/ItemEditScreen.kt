@@ -43,6 +43,8 @@ import online.lfcloud.order.ui.theme.Ink
 import online.lfcloud.order.ui.theme.Muted
 import online.lfcloud.order.ui.theme.MutedLight
 import online.lfcloud.order.ui.theme.Teal
+import online.lfcloud.order.ui.theme.Bg
+import online.lfcloud.order.ui.theme.Ink2
 
 @Composable
 fun ItemEditScreen(
@@ -53,7 +55,7 @@ fun ItemEditScreen(
     val isNew = vm.editingItemId == null
     val path = vm.pathOf(vm.itemPositionId)
 
-    Column(Modifier.fillMaxSize().background(Color.White)) {
+    Column(Modifier.fillMaxSize().background(Bg)) {
 
         Box(Modifier.fillMaxWidth().height(52.dp)) {
             Icon(
@@ -114,13 +116,13 @@ fun ItemEditScreen(
                     Box(
                         Modifier.height(32.dp).clip(RoundedCornerShape(8.dp))
                             .background(if (on) Color(0xFFF0FBF9) else Color.White)
-                            .border(1.dp, if (on) Teal else Color(0xFFEFEFEF), RoundedCornerShape(8.dp))
+                            .border(1.dp, if (on) Teal else HairLine, RoundedCornerShape(8.dp))
                             .clickable { vm.itCategory = c }
                             .padding(horizontal = 12.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(c, fontSize = 13.sp,
-                            color = if (on) Color(0xFF0B8474) else Color(0xFF3A3A3A),
+                            color = if (on) Color(0xFF0B8474) else Ink2,
                             fontWeight = if (on) FontWeight.Medium else FontWeight.Normal)
                     }
                 }

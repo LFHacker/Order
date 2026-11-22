@@ -5,6 +5,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
+import online.lfcloud.order.data.Account
+import online.lfcloud.order.data.AccountRepository
 import online.lfcloud.order.data.ItemRepository
 import online.lfcloud.order.data.ModuleRepository
 import online.lfcloud.order.data.PositionRepository
@@ -121,6 +123,51 @@ class OrderViewModel(app: Application) : AndroidViewModel(app) {
     var itUnit by mutableStateOf("件")
     var itNote by mutableStateOf("")
     var itError by mutableStateOf<String?>(null)
+
+    // ---------- 账号与设置 ----------
+    private val accountRepo = AccountRepository(app)
+
+    var account by mutableStateOf(accountRepo.load())
+        private set
+    var themeMode by mutableStateOf(accountRepo.loadTheme())
+        private set
+
+    fun itemTotal(): Int = items.size
+
+    fun writeHolderText(): String = "本机可写"
+
+    fun versionName(): String = runCatching {
+        val ctx = getApplication<Application>()
+        ctx.packageManager.getPackageInfo(ctx.packageName, 0).versionName ?: ""
+    }.getOrDefault("")
+    fun cacheSizeBytes(): Long = accountRepo.cacheSize(getApplication())
+
+    fun clearCache() = accountRepo.clearCache(getApplication())
+
+    fun setTheme(value: String) {
+        themeMode = value
+        accountRepo.saveTheme(value)
+    }
+
+    fun updateAccountField(field: String, value: String): Boolean {
+        val v = value.trim()
+        if (v.isEmpty()) return false
+        account = when (field) {
+            Account.FIELD_NAME -> account.copy(username = v)
+            Account.FIELD_PHONE -> account.copy(phone = v)
+            Account.FIELD_EMAIL -> account.copy(email = v)
+            else -> account
+        }
+        accountRepo.save(account)
+        return true
+    }
+
+    fun updatePassword(current: String, next: String): Boolean {
+        if (next.length < 8) return false
+        account = account.copy(password = next)
+        accountRepo.save(account)
+        return true
+    }
 
     // ---------- 工作区 ----------
 

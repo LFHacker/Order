@@ -24,6 +24,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -55,6 +56,8 @@ import online.lfcloud.order.ui.theme.Muted
 import online.lfcloud.order.ui.theme.MutedLight
 import online.lfcloud.order.ui.theme.Teal
 import online.lfcloud.order.ui.theme.TealSofter
+import online.lfcloud.order.ui.theme.Bg
+import online.lfcloud.order.ui.theme.Soft2
 
 @Composable
 fun WorkspaceListScreen(
@@ -63,6 +66,8 @@ fun WorkspaceListScreen(
     onEdit: (String) -> Unit,
     onCreate: () -> Unit,
     onOpenSortFilter: () -> Unit,
+    onOpenProfile: () -> Unit,
+    onOpenSettings: () -> Unit,
     onDeleteRequest: (Workspace) -> Unit
 ) {
     var searching by remember { mutableStateOf(false) }
@@ -71,7 +76,7 @@ fun WorkspaceListScreen(
     val recent = visible.filter { now - it.updatedAt < 7L * 24 * 3600 * 1000 }
     val earlier = visible.filter { now - it.updatedAt >= 7L * 24 * 3600 * 1000 }
 
-    Column(Modifier.fillMaxSize().background(Color.White)) {
+    Column(Modifier.fillMaxSize().background(Bg)) {
 
         if (searching) {
             SimpleSearchBar(
@@ -94,20 +99,32 @@ fun WorkspaceListScreen(
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
-                        Modifier.size(36.dp).clip(CircleShape).clickable { searching = true },
+                        Modifier.size(32.dp).clip(CircleShape).clickable { searching = true },
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(Icons.Filled.Search, contentDescription = "搜索", tint = Ink,
                             modifier = Modifier.size(20.dp))
                     }
-                    Spacer(Modifier.width(4.dp))
+                    Spacer(Modifier.width(6.dp))
                     Box(
-                        Modifier.size(36.dp).clip(CircleShape).background(Teal)
+                        Modifier.size(32.dp).clip(CircleShape).background(Teal)
                             .clickable(onClick = onCreate),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(Icons.Filled.Add, contentDescription = "新建工作区", tint = Color.White,
-                            modifier = Modifier.size(20.dp))
+                            modifier = Modifier.size(19.dp))
+                    }
+                    Spacer(Modifier.width(6.dp))
+                    Box(
+                        Modifier.size(32.dp).clip(CircleShape).clickable(onClick = onOpenSettings),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(Icons.Filled.Settings, contentDescription = "设置", tint = Ink,
+                            modifier = Modifier.size(19.dp))
+                    }
+                    Spacer(Modifier.width(6.dp))
+                    Box(Modifier.size(32.dp).clickable(onClick = onOpenProfile)) {
+                        DefaultAvatar(32)
                     }
                 }
             }
@@ -198,7 +215,7 @@ private fun WorkspaceRow(
                         fontSize = 12.5.sp, color = Muted)
                 }
                 Icon(Icons.Filled.KeyboardArrowRight, contentDescription = null,
-                    tint = Color(0xFFCFCFCF), modifier = Modifier.size(18.dp))
+                    tint = MutedLight, modifier = Modifier.size(18.dp))
             }
 
             DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
@@ -264,7 +281,7 @@ fun SimpleSearchBar(
     ) {
         Row(
             Modifier.weight(1f).height(40.dp).clip(RoundedCornerShape(10.dp))
-                .background(Color(0xFFF6F6F6)).padding(horizontal = 12.dp),
+                .background(Soft2).padding(horizontal = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(Icons.Filled.Search, contentDescription = null, tint = Muted,

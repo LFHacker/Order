@@ -50,6 +50,8 @@ import online.lfcloud.order.ui.theme.Ink
 import online.lfcloud.order.ui.theme.Muted
 import online.lfcloud.order.ui.theme.Teal
 import kotlin.math.roundToInt
+import online.lfcloud.order.ui.theme.Bg
+import online.lfcloud.order.ui.theme.MutedLight
 
 private val RowHeight = 62.dp
 
@@ -71,7 +73,7 @@ fun PositionListScreen(
     var dragIndex by remember { mutableStateOf<Int?>(null) }
     var dragDelta by remember { mutableStateOf(0f) }
 
-    Column(Modifier.fillMaxSize().background(Color.White)) {
+    Column(Modifier.fillMaxSize().background(Bg)) {
 
         Box(Modifier.fillMaxWidth().height(52.dp)) {
             Icon(
@@ -180,7 +182,7 @@ private fun PositionRow(
             ) {
                 Text(
                     "${index + 1}",
-                    fontSize = 12.5.sp, color = Color(0xFFB8B8B8),
+                    fontSize = 12.5.sp, color = MutedLight,
                     modifier = Modifier.width(18.dp)
                 )
                 Spacer(Modifier.width(12.dp))
@@ -189,7 +191,7 @@ private fun PositionRow(
                 Text(
                     if (position.itemCount > 0) "${position.itemCount} 件" else "空",
                     fontSize = 13.sp,
-                    color = if (position.itemCount > 0) Muted else Color(0xFFC0C0C0)
+                    color = if (position.itemCount > 0) Muted else MutedLight
                 )
                 Spacer(Modifier.width(12.dp))
                 Box(
@@ -212,7 +214,7 @@ private fun PositionRow(
                         val stroke = 1.6.dp.toPx()
                         listOf(0.25f, 0.5f, 0.75f).forEach { fy ->
                             drawLine(
-                                color = Color(0xFFD2D2D2),
+                                color = MutedLight,
                                 start = androidx.compose.ui.geometry.Offset(0f, size.height * fy),
                                 end = androidx.compose.ui.geometry.Offset(size.width, size.height * fy),
                                 strokeWidth = stroke,

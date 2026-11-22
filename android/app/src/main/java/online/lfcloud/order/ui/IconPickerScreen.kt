@@ -38,6 +38,7 @@ import online.lfcloud.order.ui.theme.Muted
 import online.lfcloud.order.ui.theme.MutedLight
 import online.lfcloud.order.ui.theme.Teal
 import online.lfcloud.order.ui.theme.TealDeep
+import online.lfcloud.order.ui.theme.Bg
 
 private val Tabs = listOf("全部") + IconLibrary.groups
 
@@ -49,7 +50,7 @@ fun IconPickerScreen(
 ) {
     var tab by remember { mutableStateOf("全部") }
 
-    Column(Modifier.fillMaxSize().background(Color.White)) {
+    Column(Modifier.fillMaxSize().background(Bg)) {
 
         Row(
             Modifier.fillMaxWidth().height(52.dp).padding(horizontal = 16.dp),

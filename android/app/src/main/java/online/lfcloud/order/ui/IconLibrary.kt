@@ -7,6 +7,7 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.PathParser
 import androidx.compose.ui.unit.dp
+import online.lfcloud.order.ui.theme.Ink2
 
 /** 一个预设图标：id 会写进数据，所以定下来之后不要改。 */
 data class OrderIcon(
@@ -75,7 +76,7 @@ object IconLibrary {
         ).apply {
             addPath(
                 pathData = nodes,
-                stroke = SolidColor(Color(0xFF3A3A3A)),
+                stroke = SolidColor(Ink2),
                 strokeLineWidth = 1.7f,
                 strokeLineCap = StrokeCap.Round,
                 strokeLineJoin = StrokeJoin.Round
