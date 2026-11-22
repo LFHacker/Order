@@ -4,9 +4,11 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -68,6 +70,7 @@ fun ItemDetailScreen(
     val relCount = vm.relationsOf(item.id).size
     val evCount = vm.eventsOf(item.id).size
     val path = vm.pathOf(item.positionId)
+    var cropUri by remember { mutableStateOf<android.net.Uri?>(null) }
 
     val picker = rememberLauncherForActivityResult(
         ActivityResultContracts.PickVisualMedia()
@@ -78,12 +81,7 @@ fun ItemDetailScreen(
                     uri, android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
                 )
             }
-            vm.addAttachment(
-                item.id,
-                queryName(context, uri) ?: "图片",
-                uri.toString(),
-                "image"
-            )
+            cropUri = uri
         }
     }
 
@@ -124,8 +122,10 @@ fun ItemDetailScreen(
 
             Spacer(Modifier.height(16.dp))
             Box(
-                Modifier.fillMaxWidth().padding(horizontal = 16.dp).height(220.dp)
+                Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+                    .aspectRatio(1.6f)
                     .clip(RoundedCornerShape(14.dp))
+                    .border(1.dp, Color(0xFFECEFEF), RoundedCornerShape(14.dp))
             ) {
                 val first = images.firstOrNull()
                 val bmp = rememberUriBitmap(first?.uri)
@@ -159,10 +159,14 @@ fun ItemDetailScreen(
                 }
             }
 
+            // 图片区与内容之间的分隔
+            Spacer(Modifier.height(18.dp))
+            Box(Modifier.fillMaxWidth().height(1.dp).background(HairLine))
+
             Text(
                 item.name, fontSize = 22.sp, fontWeight = FontWeight.Bold,
                 letterSpacing = (-0.3).sp, color = Ink,
-                modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 14.dp)
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 18.dp)
             )
             Row(Modifier.padding(start = 16.dp, end = 16.dp, top = 6.dp),
                 verticalAlignment = Alignment.CenterVertically) {
@@ -182,6 +186,18 @@ fun ItemDetailScreen(
 
             Spacer(Modifier.height(24.dp))
         }
+    }
+
+    cropUri?.let { uri ->
+        ImageCropDialog(
+            uri = uri,
+            aspectRatio = 1.6f,
+            onDone = { path ->
+                vm.addAttachment(item.id, "图片", path, "image")
+                cropUri = null
+            },
+            onCancel = { cropUri = null }
+        )
     }
 }
 

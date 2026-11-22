@@ -71,6 +71,7 @@ fun AttachmentScreen(
     val files = list.filter { it.kind != "image" }
     var preview by remember { mutableStateOf<Attachment?>(null) }
     var menuFor by remember { mutableStateOf<Attachment?>(null) }
+    var cropUri by remember { mutableStateOf<android.net.Uri?>(null) }
 
     val picker = rememberLauncherForActivityResult(
         ActivityResultContracts.PickVisualMedia()
@@ -81,7 +82,7 @@ fun AttachmentScreen(
                     uri, android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
                 )
             }
-            vm.addAttachment(item.id, queryName(context, uri) ?: "图片", uri.toString(), "image")
+            cropUri = uri
         }
     }
 
@@ -223,6 +224,18 @@ fun AttachmentScreen(
         }
     }
 
+    cropUri?.let { uri ->
+        ImageCropDialog(
+            uri = uri,
+            aspectRatio = 1f,
+            onDone = { path ->
+                vm.addAttachment(item.id, "图片", path, "image")
+                cropUri = null
+            },
+            onCancel = { cropUri = null }
+        )
+    }
+
     // 全屏预览
     preview?.let { att ->
         Dialog(
@@ -264,7 +277,7 @@ fun AttachmentScreen(
     }
 }
 
-/** 从 content:// 读一张图，按 uri 缓存。 */
+/** 读一张图：支持 file://（裁剪后保存的）和 content://（相册选的）。 */
 @Composable
 fun rememberUriBitmap(uri: String?): ImageBitmap? {
     val context = LocalContext.current
@@ -272,7 +285,13 @@ fun rememberUriBitmap(uri: String?): ImageBitmap? {
     LaunchedEffect(uri) {
         bmp = if (uri == null) null else withContext(Dispatchers.IO) {
             runCatching {
-                context.contentResolver.openInputStream(Uri.parse(uri))?.use { ins ->
+                val parsed = Uri.parse(uri)
+                val stream = if (parsed.scheme == "file") {
+                    parsed.path?.let { java.io.FileInputStream(it) }
+                } else {
+                    context.contentResolver.openInputStream(parsed)
+                }
+                stream?.use { ins ->
                     android.graphics.BitmapFactory.decodeStream(ins)?.asImageBitmap()
                 }
             }.getOrNull()
