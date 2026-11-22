@@ -1,5 +1,6 @@
 package online.lfcloud.order.ui
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
@@ -19,7 +20,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.KeyboardArrowRight
@@ -36,67 +36,100 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import online.lfcloud.order.WorkspaceViewModel
+import online.lfcloud.order.OrderViewModel
+import online.lfcloud.order.model.FilterState
 import online.lfcloud.order.model.Workspace
 import online.lfcloud.order.model.relativeText
+import online.lfcloud.order.ui.theme.Danger
 import online.lfcloud.order.ui.theme.HairLine
 import online.lfcloud.order.ui.theme.Ink
 import online.lfcloud.order.ui.theme.Ink2
 import online.lfcloud.order.ui.theme.Muted
 import online.lfcloud.order.ui.theme.MutedLight
 import online.lfcloud.order.ui.theme.Teal
-import androidx.compose.foundation.ExperimentalFoundationApi
+import online.lfcloud.order.ui.theme.TealSofter
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun WorkspaceListScreen(
-    vm: WorkspaceViewModel,
-    onOpenEdit: (String?) -> Unit,
+    vm: OrderViewModel,
+    onOpenModules: (Workspace) -> Unit,
+    onEdit: (String) -> Unit,
+    onCreate: () -> Unit,
     onOpenSortFilter: () -> Unit,
     onDeleteRequest: (Workspace) -> Unit
 ) {
     var searching by remember { mutableStateOf(false) }
-    val visible = vm.visible()
-    val recent = visible.filter { System.currentTimeMillis() - it.updatedAt < 7L * 24 * 3600 * 1000 }
-    val earlier = visible.filter { System.currentTimeMillis() - it.updatedAt >= 7L * 24 * 3600 * 1000 }
+    val visible = vm.visibleWorkspaces()
+    val now = System.currentTimeMillis()
+    val recent = visible.filter { now - it.updatedAt < 7L * 24 * 3600 * 1000 }
+    val earlier = visible.filter { now - it.updatedAt >= 7L * 24 * 3600 * 1000 }
 
-    Column(Modifier.fillMaxSize().background(androidx.compose.ui.graphics.Color.White)) {
+    Column(Modifier.fillMaxSize().background(Color.White)) {
 
         if (searching) {
-            SearchBar(
+            SimpleSearchBar(
                 query = vm.query,
+                placeholder = "搜索工作区",
                 onQueryChange = { vm.query = it },
-                onCancel = {
-                    searching = false
-                    vm.query = ""
-                }
+                onCancel = { searching = false; vm.query = "" }
             )
         } else {
-            ListHeader(
-                count = vm.workspaces.size,
-                items = vm.totalItems(),
-                onSearch = { searching = true },
-                onCreate = { onOpenEdit(null) }
-            )
-            Toolbar(
+            Row(
+                Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 10.dp),
+                verticalAlignment = Alignment.Bottom
+            ) {
+                Column(Modifier.weight(1f)) {
+                    Text("工作区", fontSize = 26.sp, fontWeight = FontWeight.Bold,
+                        letterSpacing = (-0.6).sp, color = Ink)
+                    Spacer(Modifier.height(3.dp))
+                    Text("${vm.workspaces.size} 个 · ${vm.totalItems()} 件物品 · 已同步",
+                        fontSize = 12.5.sp, color = Muted)
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        Modifier.size(36.dp).clip(CircleShape).clickable { searching = true },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(Icons.Filled.Search, contentDescription = "搜索", tint = Ink,
+                            modifier = Modifier.size(20.dp))
+                    }
+                    Spacer(Modifier.width(4.dp))
+                    Box(
+                        Modifier.size(36.dp).clip(CircleShape).background(Teal)
+                            .clickable(onClick = onCreate),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(Icons.Filled.Add, contentDescription = "新建工作区", tint = Color.White,
+                            modifier = Modifier.size(20.dp))
+                    }
+                }
+            }
+            SortFilterBar(
                 sortLabel = vm.sort.label,
                 filterCount = vm.filter.activeCount,
-                onSortFilter = onOpenSortFilter
+                onOpen = onOpenSortFilter
             )
         }
 
         when {
-            vm.workspaces.isEmpty() -> EmptyState(onCreate = { onOpenEdit(null) })
+            vm.workspaces.isEmpty() -> EmptyHint(
+                title = "还没有工作区",
+                desc = "工作区是物品的容器。\n先建一个「家」或「公司」，再把物品放进去。",
+                cta = "新建工作区",
+                iconId = "home",
+                onCreate = onCreate
+            )
 
-            visible.isEmpty() -> NoResultState {
+            visible.isEmpty() -> NoResultHint {
                 vm.query = ""
-                vm.resetFilter()
+                vm.filter = FilterState()
             }
 
             else -> LazyColumn(Modifier.fillMaxSize()) {
@@ -105,10 +138,10 @@ fun WorkspaceListScreen(
                     items(recent, key = { it.id }) { w ->
                         WorkspaceRow(
                             w = w,
-                            onClick = { onOpenEdit(w.id) },
-                            onRename = { onOpenEdit(w.id) },
+                            onClick = { onOpenModules(w) },
+                            onRename = { onEdit(w.id) },
                             onDelete = { onDeleteRequest(w) },
-                            onSetCurrent = { vm.setCurrent(w.id) }
+                            onSetCurrent = { vm.setCurrentWorkspace(w.id) }
                         )
                     }
                 }
@@ -117,122 +150,16 @@ fun WorkspaceListScreen(
                     items(earlier, key = { it.id }) { w ->
                         WorkspaceRow(
                             w = w,
-                            onClick = { onOpenEdit(w.id) },
-                            onRename = { onOpenEdit(w.id) },
+                            onClick = { onOpenModules(w) },
+                            onRename = { onEdit(w.id) },
                             onDelete = { onDeleteRequest(w) },
-                            onSetCurrent = { vm.setCurrent(w.id) }
+                            onSetCurrent = { vm.setCurrentWorkspace(w.id) }
                         )
                     }
                 }
             }
         }
     }
-}
-
-@Composable
-private fun ListHeader(count: Int, items: Int, onSearch: () -> Unit, onCreate: () -> Unit) {
-    Row(
-        Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 10.dp),
-        verticalAlignment = Alignment.Bottom
-    ) {
-        Column(Modifier.weight(1f)) {
-            Text("工作区", fontSize = 26.sp, fontWeight = FontWeight.Bold,
-                letterSpacing = (-0.6).sp, color = Ink)
-            Spacer(Modifier.height(3.dp))
-            Text("$count 个 · $items 件物品 · 已同步", fontSize = 12.5.sp, color = Muted)
-        }
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                Modifier.size(36.dp).clip(CircleShape).clickable(onClick = onSearch),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(Icons.Filled.Search, contentDescription = "搜索", tint = Ink,
-                    modifier = Modifier.size(20.dp))
-            }
-            Spacer(Modifier.width(4.dp))
-            Box(
-                Modifier.size(36.dp).clip(CircleShape).background(Teal)
-                    .clickable(onClick = onCreate),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(Icons.Filled.Add, contentDescription = "新建工作区", tint = androidx.compose.ui.graphics.Color.White,
-                    modifier = Modifier.size(20.dp))
-            }
-        }
-    }
-}
-
-@Composable
-private fun Toolbar(sortLabel: String, filterCount: Int, onSortFilter: () -> Unit) {
-    Column {
-        Row(
-            Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                sortLabel,
-                fontSize = 13.sp,
-                color = Ink2,
-                modifier = Modifier.clickable(onClick = onSortFilter)
-            )
-            Text(
-                if (filterCount > 0) "筛选 · $filterCount" else "筛选",
-                fontSize = 13.sp,
-                fontWeight = if (filterCount > 0) FontWeight.Medium else FontWeight.Normal,
-                color = if (filterCount > 0) Teal else Ink2,
-                modifier = Modifier.clickable(onClick = onSortFilter)
-            )
-        }
-        Box(Modifier.fillMaxWidth().height(1.dp).background(HairLine))
-    }
-}
-
-@Composable
-private fun SearchBar(query: String, onQueryChange: (String) -> Unit, onCancel: () -> Unit) {
-    Row(
-        Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 10.dp, bottom = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Row(
-            Modifier.weight(1f).height(40.dp)
-                .clip(RoundedCornerShape(10.dp))
-                .background(androidx.compose.ui.graphics.Color(0xFFF6F6F6))
-                .padding(horizontal = 12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(Icons.Filled.Search, contentDescription = null, tint = Muted,
-                modifier = Modifier.size(18.dp))
-            Spacer(Modifier.width(8.dp))
-            Box(Modifier.weight(1f)) {
-                if (query.isEmpty()) {
-                    Text("搜索工作区", fontSize = 14.sp, color = MutedLight)
-                }
-                BasicTextField(
-                    value = query,
-                    onValueChange = onQueryChange,
-                    singleLine = true,
-                    textStyle = TextStyle(fontSize = 14.sp, color = Ink),
-                    cursorBrush = SolidColor(Teal),
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-        }
-        Spacer(Modifier.width(12.dp))
-        Text("取消", fontSize = 14.sp, color = Teal, fontWeight = FontWeight.Medium,
-            modifier = Modifier.clickable(onClick = onCancel))
-    }
-}
-
-@Composable
-private fun SectionHeader(text: String) {
-    Text(
-        text,
-        fontSize = 12.5.sp,
-        color = Muted,
-        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 18.dp, bottom = 8.dp)
-    )
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -257,36 +184,31 @@ private fun WorkspaceRow(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         val icon = IconLibrary.find(w.iconId)
                         if (icon != null) {
-                            Icon(
-                                IconLibrary.vector(icon.id),
-                                contentDescription = null,
-                                tint = Ink2,
-                                modifier = Modifier.size(17.dp)
-                            )
+                            Icon(IconLibrary.vector(icon.id), contentDescription = null,
+                                tint = Ink2, modifier = Modifier.size(17.dp))
                             Spacer(Modifier.width(6.dp))
                         }
                         Text(w.name, fontSize = 16.5.sp, fontWeight = FontWeight.Medium, color = Ink)
                         if (w.isCurrent) {
                             Spacer(Modifier.width(7.dp))
-                            CurrentTag()
+                            MiniTag("当前")
                         }
                     }
                     Spacer(Modifier.height(3.dp))
-                    Text(
-                        "${w.itemCount} 件物品 · ${w.updatedAt.relativeText()}",
-                        fontSize = 12.5.sp, color = Muted
-                    )
+                    Text("${w.itemCount} 件物品 · ${w.updatedAt.relativeText()}",
+                        fontSize = 12.5.sp, color = Muted)
                 }
                 Icon(Icons.Filled.KeyboardArrowRight, contentDescription = null,
-                    tint = androidx.compose.ui.graphics.Color(0xFFCFCFCF),
-                    modifier = Modifier.size(18.dp))
+                    tint = Color(0xFFCFCFCF), modifier = Modifier.size(18.dp))
             }
 
             DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
                 DropdownMenuItem(text = { Text("重命名") }, onClick = { menu = false; onRename() })
                 DropdownMenuItem(text = { Text("设为当前") }, onClick = { menu = false; onSetCurrent() })
-                DropdownMenuItem(text = { Text("删除", color = androidx.compose.ui.graphics.Color(0xFFC9503C)) },
-                    onClick = { menu = false; onDelete() })
+                DropdownMenuItem(
+                    text = { Text("删除", color = Danger) },
+                    onClick = { menu = false; onDelete() }
+                )
             }
         }
         Box(Modifier.fillMaxWidth().padding(start = 16.dp).height(1.dp).background(HairLine))
@@ -294,63 +216,125 @@ private fun WorkspaceRow(
 }
 
 @Composable
-private fun CurrentTag() {
+fun MiniTag(text: String) {
     Box(
-        Modifier.clip(RoundedCornerShape(3.dp))
-            .background(androidx.compose.ui.graphics.Color(0xFFF0FBF9))
+        Modifier.clip(RoundedCornerShape(3.dp)).background(TealSofter)
             .padding(horizontal = 5.dp, vertical = 1.dp)
     ) {
-        Text("当前", fontSize = 10.sp, fontWeight = FontWeight.SemiBold, color = Teal)
+        Text(text, fontSize = 10.sp, fontWeight = FontWeight.SemiBold, color = Teal)
     }
 }
 
 @Composable
-private fun EmptyState(onCreate: () -> Unit) {
+fun SectionHeader(text: String) {
+    Text(text, fontSize = 12.5.sp, color = Muted,
+        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 18.dp, bottom = 8.dp))
+}
+
+@Composable
+fun SortFilterBar(sortLabel: String, filterCount: Int, onOpen: () -> Unit) {
+    Column {
+        Row(
+            Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(sortLabel, fontSize = 13.sp, color = Ink2, modifier = Modifier.clickable(onClick = onOpen))
+            Text(
+                if (filterCount > 0) "筛选 · $filterCount" else "筛选",
+                fontSize = 13.sp,
+                fontWeight = if (filterCount > 0) FontWeight.Medium else FontWeight.Normal,
+                color = if (filterCount > 0) Teal else Ink2,
+                modifier = Modifier.clickable(onClick = onOpen)
+            )
+        }
+        Box(Modifier.fillMaxWidth().height(1.dp).background(HairLine))
+    }
+}
+
+@Composable
+fun SimpleSearchBar(
+    query: String,
+    placeholder: String,
+    onQueryChange: (String) -> Unit,
+    onCancel: () -> Unit
+) {
+    Row(
+        Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 10.dp, bottom = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Row(
+            Modifier.weight(1f).height(40.dp).clip(RoundedCornerShape(10.dp))
+                .background(Color(0xFFF6F6F6)).padding(horizontal = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(Icons.Filled.Search, contentDescription = null, tint = Muted,
+                modifier = Modifier.size(18.dp))
+            Spacer(Modifier.width(8.dp))
+            Box(Modifier.weight(1f)) {
+                if (query.isEmpty()) Text(placeholder, fontSize = 14.sp, color = MutedLight)
+                BasicTextField(
+                    value = query,
+                    onValueChange = onQueryChange,
+                    singleLine = true,
+                    textStyle = TextStyle(fontSize = 14.sp, color = Ink),
+                    cursorBrush = SolidColor(Teal),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+        Spacer(Modifier.width(12.dp))
+        Text("取消", fontSize = 14.sp, color = Teal, fontWeight = FontWeight.Medium,
+            modifier = Modifier.clickable(onClick = onCancel))
+    }
+}
+
+@Composable
+fun EmptyHint(
+    title: String,
+    desc: String,
+    cta: String,
+    iconId: String,
+    onCreate: () -> Unit
+) {
     Column(
         Modifier.fillMaxSize().padding(horizontal = 30.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(Modifier.height(90.dp))
         Box(
-            Modifier.size(96.dp).clip(RoundedCornerShape(30.dp)).background(Color0),
+            Modifier.size(92.dp).clip(RoundedCornerShape(28.dp)).background(TealSofter),
             contentAlignment = Alignment.Center
         ) {
-            Icon(IconLibrary.vector("home"), contentDescription = null, tint = Teal,
-                modifier = Modifier.size(44.dp))
+            Icon(IconLibrary.vector(iconId), contentDescription = null, tint = Teal,
+                modifier = Modifier.size(42.dp))
         }
         Spacer(Modifier.height(22.dp))
-        Text("还没有工作区", fontSize = 16.5.sp, fontWeight = FontWeight.Bold, color = Ink)
+        Text(title, fontSize = 16.5.sp, fontWeight = FontWeight.Bold, color = Ink)
         Spacer(Modifier.height(9.dp))
-        Text(
-            "工作区是物品的容器。\n先建一个「家」或「公司」，再把物品放进去。",
-            fontSize = 13.sp, color = Muted, lineHeight = 22.sp,
-            textAlign = androidx.compose.ui.text.style.TextAlign.Center
-        )
+        Text(desc, fontSize = 13.sp, color = Muted, lineHeight = 22.sp, textAlign = TextAlign.Center)
         Spacer(Modifier.height(26.dp))
         Row(
-            Modifier.width(196.dp).height(50.dp).clip(RoundedCornerShape(25.dp))
+            Modifier.width(190.dp).height(50.dp).clip(RoundedCornerShape(25.dp))
                 .background(Teal).clickable(onClick = onCreate),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(Icons.Filled.Add, contentDescription = null,
-                tint = androidx.compose.ui.graphics.Color.White, modifier = Modifier.size(18.dp))
+            Icon(Icons.Filled.Add, contentDescription = null, tint = Color.White,
+                modifier = Modifier.size(17.dp))
             Spacer(Modifier.width(8.dp))
-            Text("新建工作区", fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold,
-                color = androidx.compose.ui.graphics.Color.White)
+            Text(cta, fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
         }
     }
 }
 
-private val Color0 = androidx.compose.ui.graphics.Color(0xFFF0FBF9)
-
 @Composable
-private fun NoResultState(onReset: () -> Unit) {
+fun NoResultHint(onReset: () -> Unit) {
     Column(
         Modifier.fillMaxSize().padding(top = 110.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("没有符合条件的工作区", fontSize = 15.sp, color = Ink2)
+        Text("没有符合条件的结果", fontSize = 15.sp, color = Ink2)
         Spacer(Modifier.height(8.dp))
         Text("试试放宽筛选条件", fontSize = 12.5.sp, color = Muted)
         Spacer(Modifier.height(18.dp))

@@ -9,6 +9,13 @@ enum class SortOption(val label: String) {
     CREATED("创建时间（新 → 旧）")
 }
 
+enum class ModuleSort(val label: String) {
+    RECENT("最近更新"),
+    NAME("名称 A → Z"),
+    ITEMS("物品数量（多 → 少）"),
+    POSITIONS("方位数量（多 → 少）")
+}
+
 data class FilterState(
     val days: Int = 0,
     val onlyWithItems: Boolean = false,
@@ -19,12 +26,12 @@ data class FilterState(
             (if (onlyWithItems) 1 else 0) +
             (if (onlyEmpty) 1 else 0)
 
-    fun matches(w: Workspace, now: Long = System.currentTimeMillis()): Boolean {
-        if (onlyWithItems && w.itemCount <= 0) return false
-        if (onlyEmpty && w.itemCount > 0) return false
+    fun matches(itemCount: Int, updatedAt: Long, now: Long = System.currentTimeMillis()): Boolean {
+        if (onlyWithItems && itemCount <= 0) return false
+        if (onlyEmpty && itemCount > 0) return false
         if (days > 0) {
             val limit = now - days * 24L * 60L * 60L * 1000L
-            if (w.updatedAt < limit) return false
+            if (updatedAt < limit) return false
         }
         return true
     }
@@ -39,6 +46,19 @@ data class Workspace(
     val updatedAt: Long = System.currentTimeMillis(),
     val createdAt: Long = System.currentTimeMillis(),
     val isCurrent: Boolean = false
+)
+
+/** 模块：工作区内的一类地方（桌面、抽屉、衣柜）。方位与物品挂在它下面。 */
+data class Module(
+    val id: String = UUID.randomUUID().toString(),
+    val workspaceId: String,
+    val name: String,
+    val iconId: String? = null,
+    val description: String = "",
+    val positionCount: Int = 0,
+    val itemCount: Int = 0,
+    val updatedAt: Long = System.currentTimeMillis(),
+    val createdAt: Long = System.currentTimeMillis()
 )
 
 fun Long.relativeText(now: Long = System.currentTimeMillis()): String {

@@ -37,7 +37,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import online.lfcloud.order.WorkspaceViewModel
+import online.lfcloud.order.OrderViewModel
 import online.lfcloud.order.ui.theme.Danger
 import online.lfcloud.order.ui.theme.HairLine
 import online.lfcloud.order.ui.theme.Ink
@@ -51,18 +51,18 @@ private val QuickIcons = listOf("home", "building", "house", "briefcase", "box")
 
 @Composable
 fun WorkspaceEditScreen(
-    vm: WorkspaceViewModel,
+    vm: OrderViewModel,
     onBack: () -> Unit,
     onSaved: () -> Unit
 ) {
     var showPicker by remember { mutableStateOf(false) }
-    val isNew = vm.editingId == null
+    val isNew = vm.editingWsId == null
 
     if (showPicker) {
         IconPickerScreen(
-            selected = vm.formIcon,
+            selected = vm.wsIcon,
             onPick = {
-                vm.formIcon = it
+                vm.wsIcon = it
                 showPicker = false
             },
             onBack = { showPicker = false }
@@ -95,13 +95,13 @@ fun WorkspaceEditScreen(
                 "保存",
                 fontSize = 14.5.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = if (vm.formName.isBlank()) MutedLight else Teal,
+                color = if (vm.wsName.isBlank()) MutedLight else Teal,
                 softWrap = false,
                 maxLines = 1,
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
                     .padding(horizontal = 16.dp)
-                    .clickable { if (vm.save()) onSaved() }
+                    .clickable { if (vm.saveWorkspace()) onSaved() }
             )
         }
 
@@ -116,19 +116,19 @@ fun WorkspaceEditScreen(
                     Spacer(Modifier.width(3.dp))
                     Text("*", fontSize = 12.5.sp, color = Danger)
                 }
-                Text("${vm.formName.length} / 40", fontSize = 12.5.sp, color = MutedLight)
+                Text("${vm.wsName.length} / 40", fontSize = 12.5.sp, color = MutedLight)
             }
             Spacer(Modifier.height(4.dp))
             Box(Modifier.fillMaxWidth().height(44.dp), contentAlignment = Alignment.CenterStart) {
-                if (vm.formName.isEmpty()) {
+                if (vm.wsName.isEmpty()) {
                     Text("例如：家", fontSize = 16.sp, color = MutedLight)
                 }
                 BasicTextField(
-                    value = vm.formName,
+                    value = vm.wsName,
                     onValueChange = {
                         if (it.length <= 40) {
-                            vm.formName = it
-                            vm.nameError = null
+                            vm.wsName = it
+                            vm.wsError = null
                         }
                     },
                     singleLine = true,
@@ -138,9 +138,9 @@ fun WorkspaceEditScreen(
                 )
             }
             Box(Modifier.fillMaxWidth().height(1.dp).background(HairLine))
-            if (vm.nameError != null) {
+            if (vm.wsError != null) {
                 Spacer(Modifier.height(6.dp))
-                Text(vm.nameError!!, fontSize = 11.5.sp, color = Danger)
+                Text(vm.wsError!!, fontSize = 11.5.sp, color = Danger)
             }
 
             // 图标
@@ -152,22 +152,22 @@ fun WorkspaceEditScreen(
             Spacer(Modifier.height(9.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(9.dp)) {
                 IconCell(
-                    selected = vm.formIcon == null,
+                    selected = vm.wsIcon == null,
                     modifier = Modifier.weight(1f),
-                    onClick = { vm.formIcon = null }
+                    onClick = { vm.wsIcon = null }
                 ) {
                     Text("无", fontSize = 11.5.sp, color = MutedLight)
                 }
                 QuickIcons.forEach { id ->
                     IconCell(
-                        selected = vm.formIcon == id,
+                        selected = vm.wsIcon == id,
                         modifier = Modifier.weight(1f),
-                        onClick = { vm.formIcon = if (vm.formIcon == id) null else id }
+                        onClick = { vm.wsIcon = if (vm.wsIcon == id) null else id }
                     ) {
                         Icon(
                             IconLibrary.vector(id),
                             contentDescription = null,
-                            tint = if (vm.formIcon == id) Teal else Ink2,
+                            tint = if (vm.wsIcon == id) Teal else Ink2,
                             modifier = Modifier.size(20.dp)
                         )
                     }
@@ -190,16 +190,16 @@ fun WorkspaceEditScreen(
             Spacer(Modifier.height(20.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 MiniLabel("描述")
-                Text("${vm.formDesc.length} / 200", fontSize = 12.5.sp, color = MutedLight)
+                Text("${vm.wsDesc.length} / 200", fontSize = 12.5.sp, color = MutedLight)
             }
             Spacer(Modifier.height(4.dp))
             Box(Modifier.fillMaxWidth().height(76.dp)) {
-                if (vm.formDesc.isEmpty()) {
+                if (vm.wsDesc.isEmpty()) {
                     Text("例如：主卧、客厅与阳台的收纳区域", fontSize = 15.sp, color = MutedLight)
                 }
                 BasicTextField(
-                    value = vm.formDesc,
-                    onValueChange = { if (it.length <= 200) vm.formDesc = it },
+                    value = vm.wsDesc,
+                    onValueChange = { if (it.length <= 200) vm.wsDesc = it },
                     textStyle = TextStyle(fontSize = 15.sp, color = Ink, lineHeight = 24.sp),
                     cursorBrush = SolidColor(Teal),
                     modifier = Modifier.fillMaxSize()

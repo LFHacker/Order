@@ -60,7 +60,7 @@ class WorkspaceRepository(context: Context) {
         val hour = 60L * 60L * 1000L
         val day = 24L * hour
         return listOf(
-            Workspace(name = "家", iconId = "home", description = "主卧、客厅与阳台", itemCount = 128,
+            Workspace(name = "家", iconId = "home", description = "主卧、客厅与阳台", itemCount = 126,
                 updatedAt = now - 2 * hour, createdAt = now - 90 * day, isCurrent = true),
             Workspace(name = "公司", iconId = "building", description = "工位与储物柜", itemCount = 24,
                 updatedAt = now - day, createdAt = now - 60 * day),
