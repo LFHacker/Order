@@ -5,6 +5,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import online.lfcloud.order.data.Account
 import online.lfcloud.order.data.AccountRepository
 import online.lfcloud.order.data.ItemRepository
@@ -21,6 +25,10 @@ import online.lfcloud.order.model.Position
 import online.lfcloud.order.model.Relation
 import online.lfcloud.order.model.SortOption
 import online.lfcloud.order.model.Workspace
+import online.lfcloud.order.net.ApiException
+import online.lfcloud.order.net.AuthApi
+import online.lfcloud.order.net.AuthResult
+import online.lfcloud.order.net.SessionStore
 
 class OrderViewModel(app: Application) : AndroidViewModel(app) {
 
@@ -131,6 +139,76 @@ class OrderViewModel(app: Application) : AndroidViewModel(app) {
         private set
     var themeMode by mutableStateOf(accountRepo.loadTheme())
         private set
+
+    // ---------- 认证（登录 / 注册） ----------
+    private val sessionStore = SessionStore(app)
+    private val io = CoroutineScope(Dispatchers.IO)
+
+    var sessionUser by mutableStateOf(sessionStore.username)
+        private set
+    var loggedIn by mutableStateOf(!sessionStore.token.isNullOrEmpty())
+        private set
+    var authBusy by mutableStateOf(false)
+        private set
+    var authError by mutableStateOf<String?>(null)
+
+    fun authToken(): String? = sessionStore.token
+
+    fun clearAuthError() {
+        authError = null
+    }
+
+    fun login(account: String, password: String) {
+        if (authBusy) return
+        authBusy = true
+        authError = null
+        io.launch {
+            val result = runCatching {
+                AuthApi.login(account.trim(), password, sessionStore.deviceId())
+            }
+            withContext(Dispatchers.Main) {
+                authBusy = false
+                result.onSuccess { applyAuth(it) }
+                    .onFailure { authError = (it as? ApiException)?.friendly() ?: "登录失败" }
+            }
+        }
+    }
+
+    fun register(account: String, password: String) {
+        if (authBusy) return
+        authBusy = true
+        authError = null
+        io.launch {
+            val result = runCatching {
+                AuthApi.register(account.trim(), password, sessionStore.deviceId())
+            }
+            withContext(Dispatchers.Main) {
+                authBusy = false
+                result.onSuccess { applyAuth(it) }
+                    .onFailure { authError = (it as? ApiException)?.friendly() ?: "注册失败" }
+            }
+        }
+    }
+
+    fun logout() {
+        val token = sessionStore.token
+        sessionStore.clear()
+        loggedIn = false
+        sessionUser = ""
+        authError = null
+        if (token != null) io.launch { runCatching { AuthApi.logout(token) } }
+    }
+
+    private fun applyAuth(auth: AuthResult) {
+        sessionStore.save(auth)
+        sessionUser = auth.username
+        loggedIn = true
+        authError = null
+        if (account.username != auth.username) {
+            account = account.copy(username = auth.username)
+            accountRepo.save(account)
+        }
+    }
 
     fun itemTotal(): Int = items.size
 
