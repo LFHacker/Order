@@ -1,0 +1,7 @@
+<Project>
+  <!-- 把 MSBuild 的中间产物与输出重定向到 C 盘，避免写满 D 盘 -->
+  <PropertyGroup>
+    <BaseIntermediateOutputPath>C:\build\obj\$(MSBuildProjectName)\</BaseIntermediateOutputPath>
+    <BaseOutputPath>C:\build\bin\$(MSBuildProjectName)\</BaseOutputPath>
+  </PropertyGroup>
+</Project>
