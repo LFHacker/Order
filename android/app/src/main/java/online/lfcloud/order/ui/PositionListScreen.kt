@@ -58,6 +58,7 @@ fun PositionListScreen(
     vm: OrderViewModel,
     onBack: () -> Unit,
     onCreate: () -> Unit,
+    onOpenItems: (Position) -> Unit,
     onEdit: (String) -> Unit,
     onDeleteRequest: (Position) -> Unit
 ) {
@@ -131,7 +132,7 @@ fun PositionListScreen(
                             index = index,
                             position = p,
                             dragging = dragging,
-                            onOpen = { onEdit(p.id) },
+                            onOpen = { onOpenItems(p) },
                             onRename = { onEdit(p.id) },
                             onDelete = { onDeleteRequest(p) },
                             onDragStart = { dragIndex = index; dragDelta = 0f },
