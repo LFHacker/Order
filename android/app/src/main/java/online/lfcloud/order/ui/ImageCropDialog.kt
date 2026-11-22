@@ -54,6 +54,7 @@ import java.io.File
 import java.io.FileOutputStream
 import kotlin.math.max
 import kotlin.math.roundToInt
+import androidx.compose.foundation.layout.requiredSize
 
 /**
  * 选完图先裁剪：裁成显示区的比例再落盘，避免整张图塞进固定大小的位置。
@@ -180,7 +181,7 @@ fun ImageCropDialog(
                             imageBmp, contentDescription = null,
                             contentScale = ContentScale.FillBounds,
                             modifier = Modifier
-                                .size(
+                                .requiredSize(
                                     with(density) { dispW.toDp() },
                                     with(density) { dispH.toDp() }
                                 )
