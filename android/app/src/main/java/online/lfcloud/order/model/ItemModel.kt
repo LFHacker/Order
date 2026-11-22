@@ -28,6 +28,7 @@ data class Item(
     val quantity: Int = 1,
     val quantityUnit: String = "件",
     val note: String = "",
+    val imageUri: String? = null,
     val status: String = "在位",     // 在位 / 借出中 / 维修中
     val createdAt: Long = System.currentTimeMillis(),
     val updatedAt: Long = System.currentTimeMillis()

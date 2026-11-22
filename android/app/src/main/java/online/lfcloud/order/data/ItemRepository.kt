@@ -38,6 +38,7 @@ class ItemRepository(context: Context) {
                     quantity = o.optInt("quantity", 1),
                     quantityUnit = o.optString("quantityUnit", "件"),
                     note = o.optString("note", ""),
+                    imageUri = if (o.isNull("imageUri")) null else o.getString("imageUri"),
                     status = o.optString("status", "在位"),
                     createdAt = o.optLong("createdAt", System.currentTimeMillis()),
                     updatedAt = o.optLong("updatedAt", System.currentTimeMillis())
@@ -57,6 +58,7 @@ class ItemRepository(context: Context) {
             put("id", i.id); put("positionId", i.positionId); put("name", i.name)
             put("category", i.category); put("quantity", i.quantity)
             put("quantityUnit", i.quantityUnit); put("note", i.note); put("status", i.status)
+            put("imageUri", i.imageUri ?: JSONObject.NULL)
             put("createdAt", i.createdAt); put("updatedAt", i.updatedAt)
         })
     }

@@ -50,6 +50,11 @@ import online.lfcloud.order.ui.theme.HairLine
 import online.lfcloud.order.ui.theme.Ink
 import online.lfcloud.order.ui.theme.Muted
 import online.lfcloud.order.ui.theme.Teal
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 
 @Composable
 fun ItemDetailScreen(
@@ -65,12 +70,12 @@ fun ItemDetailScreen(
     val item = vm.currentItem() ?: return
     var menu by remember { mutableStateOf(false) }
     val attachments = vm.attachmentsOf(item.id)
-    val images = attachments.filter { it.kind == "image" }
     val attCount = attachments.size
     val relCount = vm.relationsOf(item.id).size
     val evCount = vm.eventsOf(item.id).size
     val path = vm.pathOf(item.positionId)
     var cropUri by remember { mutableStateOf<android.net.Uri?>(null) }
+    var zoomImage by remember { mutableStateOf<String?>(null) }
 
     val picker = rememberLauncherForActivityResult(
         ActivityResultContracts.PickVisualMedia()
@@ -127,18 +132,25 @@ fun ItemDetailScreen(
                     .clip(RoundedCornerShape(14.dp))
                     .border(1.dp, Color(0xFFECEFEF), RoundedCornerShape(14.dp))
             ) {
-                val first = images.firstOrNull()
-                val bmp = rememberUriBitmap(first?.uri)
-                if (bmp != null) {
-                    Image(bmp, contentDescription = null, contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(14.dp))
-                            .clickable { onOpenAttachments() })
+                val coverBmp = rememberUriBitmap(item.imageUri)
+                if (coverBmp != null) {
+                    Image(coverBmp, contentDescription = null, contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                            .clickable { zoomImage = item.imageUri })
                     Box(
                         Modifier.align(Alignment.BottomEnd).padding(10.dp)
-                            .clip(RoundedCornerShape(6.dp)).background(Color(0x99000000))
-                            .padding(horizontal = 8.dp, vertical = 3.dp)
+                            .size(30.dp).clip(CircleShape).background(Color(0x8C000000))
+                            .clickable {
+                                picker.launch(
+                                    PickVisualMediaRequest(
+                                        ActivityResultContracts.PickVisualMedia.ImageOnly
+                                    )
+                                )
+                            },
+                        contentAlignment = Alignment.Center
                     ) {
-                        Text("${images.size}", fontSize = 11.sp, color = Color.White)
+                        Icon(Icons.Filled.Edit, contentDescription = null,
+                            tint = Color.White, modifier = Modifier.size(15.dp))
                     }
                 } else {
                     Box(
@@ -188,12 +200,32 @@ fun ItemDetailScreen(
         }
     }
 
+    zoomImage?.let { path ->
+        Dialog(
+            onDismissRequest = { zoomImage = null },
+            properties = DialogProperties(usePlatformDefaultWidth = false)
+        ) {
+            Box(
+                Modifier.fillMaxSize().background(Color(0xFF0C0C0C))
+                    .clickable(interactionSource = remember { MutableInteractionSource() },
+                        indication = null) { zoomImage = null },
+                contentAlignment = Alignment.Center
+            ) {
+                val bmp = rememberUriBitmap(path)
+                if (bmp != null) {
+                    Image(bmp, contentDescription = null, contentScale = ContentScale.Fit,
+                        modifier = Modifier.fillMaxSize().padding(10.dp))
+                }
+            }
+        }
+    }
+
     cropUri?.let { uri ->
         ImageCropDialog(
             uri = uri,
             aspectRatio = 1.6f,
             onDone = { path ->
-                vm.addAttachment(item.id, "图片", path, "image")
+                vm.setItemCover(item.id, path)
                 cropUri = null
             },
             onCancel = { cropUri = null }

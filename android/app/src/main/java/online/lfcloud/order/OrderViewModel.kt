@@ -469,6 +469,13 @@ class OrderViewModel(app: Application) : AndroidViewModel(app) {
         itemRepo.saveRelations(relations)
     }
 
+    fun setItemCover(itemId: String, uri: String) {
+        items = items.map {
+            if (it.id == itemId) it.copy(imageUri = uri, updatedAt = System.currentTimeMillis()) else it
+        }
+        itemRepo.saveItems(items)
+    }
+
     fun updateItemStatus(id: String, status: String) {
         items = items.map { if (it.id == id) it.copy(status = status) else it }
         itemRepo.saveItems(items)

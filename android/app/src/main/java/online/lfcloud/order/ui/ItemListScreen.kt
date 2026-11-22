@@ -47,6 +47,8 @@ import online.lfcloud.order.ui.theme.HairLine
 import online.lfcloud.order.ui.theme.Ink
 import online.lfcloud.order.ui.theme.Muted
 import online.lfcloud.order.ui.theme.Teal
+import androidx.compose.foundation.Image
+import androidx.compose.ui.layout.ContentScale
 
 @Composable
 fun ItemListScreen(
@@ -134,11 +136,17 @@ private fun ItemRow(
                         .background(Color(0xFFF5F7F7)),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        IconLibrary.vector(Categories.iconOf(item.category)),
-                        contentDescription = null, tint = Color(0xFF5A6E6A),
-                        modifier = Modifier.size(22.dp)
-                    )
+                    val thumb = rememberUriBitmap(item.imageUri)
+                    if (thumb != null) {
+                        Image(thumb, contentDescription = null, contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize())
+                    } else {
+                        Icon(
+                            IconLibrary.vector(Categories.iconOf(item.category)),
+                            contentDescription = null, tint = Color(0xFF5A6E6A),
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
                 }
                 Spacer(Modifier.width(12.dp))
                 Column(Modifier.weight(1f)) {
@@ -172,3 +180,4 @@ private fun ItemRow(
         Box(Modifier.fillMaxWidth().padding(start = 16.dp).height(1.dp).background(HairLine))
     }
 }
+

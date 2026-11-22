@@ -81,7 +81,7 @@ fun ImageCropDialog(
                     bmp = BitmapFactory.decodeStream(ins)
                 }
                 val b = bmp
-                if (b != null && (b.width > 2400 || b.height > 2400)) {
+                if (b != null && (b.width > 4000 || b.height > 4000)) {
                     Bitmap.createScaledBitmap(b, b.width / 2, b.height / 2, true)
                 } else {
                     b
@@ -194,7 +194,7 @@ fun ImageCropDialog(
                                     val dir = File(context.filesDir, "images").apply { mkdirs() }
                                     val out = File(dir, "img_${System.currentTimeMillis()}.jpg")
                                     FileOutputStream(out).use { fos ->
-                                        cropped.compress(Bitmap.CompressFormat.JPEG, 88, fos)
+                                        cropped.compress(Bitmap.CompressFormat.JPEG, 94, fos)
                                     }
                                     "file://${out.absolutePath}"
                                 }.getOrNull()
