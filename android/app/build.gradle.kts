@@ -14,8 +14,8 @@ android {
         applicationId = "online.lfcloud.order"
         minSdk = 26
         targetSdk = 36
-        versionCode = 1
-        versionName = "debug-0.1.0A-20261122"
+        versionCode = 2
+        versionName = "debug-0.1.0B-20261122"
     }
 
     buildTypes {

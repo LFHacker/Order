@@ -72,65 +72,44 @@ fun WorkspaceEditScreen(
 
     Column(Modifier.fillMaxSize().background(Color.White)) {
 
-        Row(
-            Modifier.fillMaxWidth().height(52.dp).padding(horizontal = 16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Box(
-                Modifier.size(32.dp).clip(RoundedCornerShape(8.dp)).clickable(onClick = onBack),
-                contentAlignment = Alignment.CenterStart
-            ) {
-                Icon(Icons.Filled.ArrowBack, contentDescription = "返回", tint = Ink,
-                    modifier = Modifier.size(22.dp))
-            }
+        // 顶栏：标题居中，保存横排不换行
+        Box(Modifier.fillMaxWidth().height(52.dp)) {
+            Icon(
+                Icons.Filled.ArrowBack,
+                contentDescription = "返回",
+                tint = Ink,
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .padding(start = 16.dp)
+                    .size(22.dp)
+                    .clickable(onClick = onBack)
+            )
             Text(
                 if (isNew) "新建工作区" else "编辑工作区",
-                fontSize = 16.5.sp, fontWeight = FontWeight.SemiBold, color = Ink
+                fontSize = 16.5.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Ink,
+                modifier = Modifier.align(Alignment.Center)
             )
-            Box(Modifier.size(32.dp), contentAlignment = Alignment.CenterEnd) {
-                Text(
-                    "保存",
-                    fontSize = 14.5.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = if (vm.formName.isBlank()) MutedLight else Teal,
-                    modifier = Modifier.clickable { if (vm.save()) onSaved() }
-                )
-            }
+            Text(
+                "保存",
+                fontSize = 14.5.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = if (vm.formName.isBlank()) MutedLight else Teal,
+                softWrap = false,
+                maxLines = 1,
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(horizontal = 16.dp)
+                    .clickable { if (vm.save()) onSaved() }
+            )
         }
 
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 16.dp)) {
 
-            Spacer(Modifier.height(6.dp))
-            MiniLabel("预览")
-            Spacer(Modifier.height(9.dp))
+            Spacer(Modifier.height(14.dp))
 
-            Row(
-                Modifier.fillMaxWidth()
-                    .border(1.dp, HairLine, RoundedCornerShape(10.dp))
-                    .padding(13.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(Modifier.weight(1f)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        val icon = IconLibrary.find(vm.formIcon)
-                        if (icon != null) {
-                            Icon(IconLibrary.vector(icon.id), contentDescription = null,
-                                tint = Ink2, modifier = Modifier.size(17.dp))
-                            Spacer(Modifier.width(6.dp))
-                        }
-                        Text(
-                            vm.formName.ifBlank { "未命名" },
-                            fontSize = 16.sp, fontWeight = FontWeight.Medium,
-                            color = if (vm.formName.isBlank()) MutedLight else Ink
-                        )
-                    }
-                    Spacer(Modifier.height(3.dp))
-                    Text("0 件物品", fontSize = 12.5.sp, color = Muted)
-                }
-            }
-
-            Spacer(Modifier.height(20.dp))
+            // 名称
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Row {
                     MiniLabel("名称")
@@ -139,34 +118,38 @@ fun WorkspaceEditScreen(
                 }
                 Text("${vm.formName.length} / 40", fontSize = 12.5.sp, color = MutedLight)
             }
-            Spacer(Modifier.height(6.dp))
-            BasicTextField(
-                value = vm.formName,
-                onValueChange = {
-                    if (it.length <= 40) {
-                        vm.formName = it
-                        vm.nameError = null
-                    }
-                },
-                singleLine = true,
-                textStyle = TextStyle(fontSize = 16.sp, color = Ink),
-                cursorBrush = SolidColor(Teal),
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(Modifier.height(10.dp))
+            Spacer(Modifier.height(4.dp))
+            Box(Modifier.fillMaxWidth().height(44.dp), contentAlignment = Alignment.CenterStart) {
+                if (vm.formName.isEmpty()) {
+                    Text("例如：家", fontSize = 16.sp, color = MutedLight)
+                }
+                BasicTextField(
+                    value = vm.formName,
+                    onValueChange = {
+                        if (it.length <= 40) {
+                            vm.formName = it
+                            vm.nameError = null
+                        }
+                    },
+                    singleLine = true,
+                    textStyle = TextStyle(fontSize = 16.sp, color = Ink),
+                    cursorBrush = SolidColor(Teal),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
             Box(Modifier.fillMaxWidth().height(1.dp).background(HairLine))
             if (vm.nameError != null) {
                 Spacer(Modifier.height(6.dp))
                 Text(vm.nameError!!, fontSize = 11.5.sp, color = Danger)
             }
 
+            // 图标
             Spacer(Modifier.height(20.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 MiniLabel("图标")
                 Text("可选", fontSize = 12.5.sp, color = MutedLight)
             }
             Spacer(Modifier.height(9.dp))
-
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(9.dp)) {
                 IconCell(
                     selected = vm.formIcon == null,
@@ -193,7 +176,7 @@ fun WorkspaceEditScreen(
 
             Spacer(Modifier.height(11.dp))
             Row(
-                Modifier.fillMaxWidth().height(40.dp).clickable { showPicker = true },
+                Modifier.fillMaxWidth().height(44.dp).clickable { showPicker = true },
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -203,19 +186,25 @@ fun WorkspaceEditScreen(
             }
             Box(Modifier.fillMaxWidth().height(1.dp).background(HairLine))
 
+            // 描述
             Spacer(Modifier.height(20.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 MiniLabel("描述")
                 Text("${vm.formDesc.length} / 200", fontSize = 12.5.sp, color = MutedLight)
             }
-            Spacer(Modifier.height(6.dp))
-            BasicTextField(
-                value = vm.formDesc,
-                onValueChange = { if (it.length <= 200) vm.formDesc = it },
-                textStyle = TextStyle(fontSize = 15.sp, color = Ink, lineHeight = 24.sp),
-                cursorBrush = SolidColor(Teal),
-                modifier = Modifier.fillMaxWidth().height(76.dp)
-            )
+            Spacer(Modifier.height(4.dp))
+            Box(Modifier.fillMaxWidth().height(76.dp)) {
+                if (vm.formDesc.isEmpty()) {
+                    Text("例如：主卧、客厅与阳台的收纳区域", fontSize = 15.sp, color = MutedLight)
+                }
+                BasicTextField(
+                    value = vm.formDesc,
+                    onValueChange = { if (it.length <= 200) vm.formDesc = it },
+                    textStyle = TextStyle(fontSize = 15.sp, color = Ink, lineHeight = 24.sp),
+                    cursorBrush = SolidColor(Teal),
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
             Box(Modifier.fillMaxWidth().height(1.dp).background(HairLine))
             Spacer(Modifier.height(40.dp))
         }
