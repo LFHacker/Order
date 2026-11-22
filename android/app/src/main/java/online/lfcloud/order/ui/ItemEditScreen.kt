@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -149,8 +150,14 @@ fun ItemEditScreen(
                 Text("默认 1", fontSize = 12.5.sp, color = MutedLight)
             }
             Spacer(Modifier.height(4.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.width(90.dp).height(44.dp), contentAlignment = Alignment.CenterStart) {
+            Row(
+                Modifier.fillMaxWidth().height(48.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    Modifier.weight(1f).fillMaxHeight(),
+                    contentAlignment = Alignment.CenterStart
+                ) {
                     BasicTextField(
                         value = vm.itQuantity,
                         onValueChange = { v ->
@@ -163,8 +170,11 @@ fun ItemEditScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
-                Spacer(Modifier.width(10.dp))
-                Box(Modifier.width(90.dp).height(44.dp), contentAlignment = Alignment.CenterStart) {
+                Box(Modifier.width(1.dp).height(22.dp).background(HairLine))
+                Box(
+                    Modifier.weight(1f).fillMaxHeight().padding(start = 16.dp),
+                    contentAlignment = Alignment.CenterStart
+                ) {
                     BasicTextField(
                         value = vm.itUnit,
                         onValueChange = { if (it.length <= 4) vm.itUnit = it },
@@ -174,8 +184,6 @@ fun ItemEditScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
-                Spacer(Modifier.width(8.dp))
-                Text("单位（件 / 套 / 支）", fontSize = 12.sp, color = MutedLight)
             }
             Box(Modifier.fillMaxWidth().height(1.dp).background(HairLine))
 
