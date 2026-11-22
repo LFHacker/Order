@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import online.lfcloud.order.model.FilterState
 import online.lfcloud.order.model.Module
+import online.lfcloud.order.model.Position
 import online.lfcloud.order.model.ModuleSort
 import online.lfcloud.order.ui.theme.Danger
 import online.lfcloud.order.ui.theme.HairLine
@@ -179,6 +180,48 @@ fun DeleteModuleDialog(
                 Spacer(Modifier.height(12.dp))
                 Text(
                     "如果只想取消这个模块、物品还想留着，先把物品移到其它模块再删。",
+                    fontSize = 11.5.sp, color = Muted, lineHeight = 18.sp
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text("删除", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Danger)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("取消", fontSize = 14.sp, color = TealDeep)
+            }
+        }
+    )
+}
+
+@Composable
+fun DeletePositionDialog(
+    target: Position,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = Color.White,
+        title = {
+            Text("删除「${target.name}」？",
+                fontSize = 16.5.sp, fontWeight = FontWeight.Bold, color = Ink)
+        },
+        text = {
+            Column {
+                Text(
+                    "该方位下有 ${target.itemCount} 件物品。\n" +
+                        "删除后方位与其中的物品一起进入回收站，30 天内可恢复。",
+                    fontSize = 13.sp, color = Muted, lineHeight = 21.sp
+                )
+                Spacer(Modifier.height(12.dp))
+                Box(Modifier.fillMaxWidth().height(1.dp).background(HairLine))
+                Spacer(Modifier.height(12.dp))
+                Text(
+                    "和工作区、模块的删除一致：整块进回收站，不影响同一模块里的其它方位。",
                     fontSize = 11.5.sp, color = Muted, lineHeight = 18.sp
                 )
             }

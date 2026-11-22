@@ -55,6 +55,7 @@ fun ModuleListScreen(
     vm: OrderViewModel,
     onBack: () -> Unit,
     onCreate: () -> Unit,
+    onOpenPositions: (Module) -> Unit,
     onEdit: (String) -> Unit,
     onOpenSortFilter: () -> Unit,
     onDeleteRequest: (Module) -> Unit
@@ -137,7 +138,8 @@ fun ModuleListScreen(
                     item { SectionHeader("最近使用") }
                     items(recent, key = { it.id }) { m ->
                         ModuleRow(m,
-                            onClick = { onEdit(m.id) },
+                            posCount = vm.positionCountOf(m.id),
+                            onClick = { onOpenPositions(m) },
                             onRename = { onEdit(m.id) },
                             onDelete = { onDeleteRequest(m) })
                     }
@@ -146,7 +148,8 @@ fun ModuleListScreen(
                     item { SectionHeader("更早") }
                     items(earlier, key = { it.id }) { m ->
                         ModuleRow(m,
-                            onClick = { onEdit(m.id) },
+                            posCount = vm.positionCountOf(m.id),
+                            onClick = { onOpenPositions(m) },
                             onRename = { onEdit(m.id) },
                             onDelete = { onDeleteRequest(m) })
                     }
@@ -160,6 +163,7 @@ fun ModuleListScreen(
 @Composable
 private fun ModuleRow(
     m: Module,
+    posCount: Int,
     onClick: () -> Unit,
     onRename: () -> Unit,
     onDelete: () -> Unit
@@ -185,7 +189,7 @@ private fun ModuleRow(
                     }
                     Spacer(Modifier.height(3.dp))
                     Text(
-                        moduleMeta(m),
+                        moduleMeta(m, posCount),
                         fontSize = 12.5.sp, color = Muted
                     )
                 }
@@ -205,8 +209,8 @@ private fun ModuleRow(
     }
 }
 
-fun moduleMeta(m: Module): String {
-    val pos = if (m.positionCount > 0) "${m.positionCount} 个方位" else "0 个方位"
+fun moduleMeta(m: Module, posCount: Int): String {
+    val pos = if (posCount > 0) "$posCount 个方位" else "0 个方位"
     val items = if (m.itemCount > 0) "${m.itemCount} 件物品" else "空模块"
     return "$pos · $items · ${m.updatedAt.relativeText()}"
 }

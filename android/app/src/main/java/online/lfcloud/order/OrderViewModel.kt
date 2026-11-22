@@ -6,10 +6,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import online.lfcloud.order.data.ModuleRepository
+import online.lfcloud.order.data.PositionRepository
 import online.lfcloud.order.data.WorkspaceRepository
 import online.lfcloud.order.model.FilterState
 import online.lfcloud.order.model.Module
 import online.lfcloud.order.model.ModuleSort
+import online.lfcloud.order.model.Position
 import online.lfcloud.order.model.SortOption
 import online.lfcloud.order.model.Workspace
 
@@ -23,6 +25,11 @@ class OrderViewModel(app: Application) : AndroidViewModel(app) {
     private val mdRepo = ModuleRepository(app)
 
     var modules by mutableStateOf<List<Module>>(mdRepo.load(workspaces))
+        private set
+
+    private val posRepo = PositionRepository(app)
+
+    var positions by mutableStateOf<List<Position>>(posRepo.load(modules))
         private set
 
     // ---------- 工作区列表状态 ----------
@@ -54,6 +61,16 @@ class OrderViewModel(app: Application) : AndroidViewModel(app) {
     var mdIcon by mutableStateOf<String?>(null)
     var mdDesc by mutableStateOf("")
     var mdError by mutableStateOf<String?>(null)
+
+    // ---------- 方位 ----------
+    var openedModuleId by mutableStateOf<String?>(null)
+        private set
+    var editingPositionId by mutableStateOf<String?>(null)
+        private set
+    var positionModuleId by mutableStateOf<String?>(null)
+        private set
+    var posName by mutableStateOf("")
+    var posError by mutableStateOf<String?>(null)
 
     // ---------- 工作区 ----------
 
@@ -129,10 +146,13 @@ class OrderViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun deleteWorkspace(id: String) {
+        val moduleIds = modules.filter { it.workspaceId == id }.map { it.id }.toSet()
         workspaces = workspaces.filterNot { it.id == id }
         modules = modules.filterNot { it.workspaceId == id }
+        positions = positions.filterNot { it.moduleId in moduleIds }
         wsRepo.save(workspaces)
         mdRepo.save(modules)
+        posRepo.save(positions)
     }
 
     fun setCurrentWorkspace(id: String) {
@@ -217,6 +237,83 @@ class OrderViewModel(app: Application) : AndroidViewModel(app) {
 
     fun deleteModule(id: String) {
         modules = modules.filterNot { it.id == id }
+        positions = positions.filterNot { it.moduleId == id }
         mdRepo.save(modules)
+        posRepo.save(positions)
+    }
+
+    // ---------- 方位 ----------
+
+    fun openModule(id: String) {
+        openedModuleId = id
+    }
+
+    fun currentModule(): Module? = modules.firstOrNull { it.id == openedModuleId }
+
+    fun positionsOf(moduleId: String?): List<Position> =
+        if (moduleId == null) emptyList()
+        else positions.filter { it.moduleId == moduleId }.sortedBy { it.sortOrder }
+
+    fun positionCountOf(moduleId: String?): Int = positionsOf(moduleId).size
+
+    fun itemsInModule(moduleId: String?): Int = positionsOf(moduleId).sumOf { it.itemCount }
+
+    fun startCreatePosition(moduleId: String) {
+        editingPositionId = null
+        positionModuleId = moduleId
+        posName = ""
+        posError = null
+    }
+
+    fun startEditPosition(id: String) {
+        val p = positions.firstOrNull { it.id == id } ?: return
+        editingPositionId = id
+        positionModuleId = p.moduleId
+        posName = p.name
+        posError = null
+    }
+
+    fun savePosition(): Boolean {
+        val name = posName.trim()
+        val moduleId = positionModuleId ?: return false
+        if (name.isEmpty()) { posError = "请输入名称"; return false }
+        if (name.length > 40) { posError = "名称最多 40 个字"; return false }
+        if (positions.any { it.moduleId == moduleId && it.name == name && it.id != editingPositionId }) {
+            posError = "该模块已有同名方位"; return false
+        }
+        posError = null
+        val now = System.currentTimeMillis()
+        val id = editingPositionId
+        positions = if (id == null) {
+            val nextOrder = positionsOf(moduleId).size
+            positions + Position(
+                moduleId = moduleId, name = name, sortOrder = nextOrder,
+                itemCount = 0, updatedAt = now, createdAt = now
+            )
+        } else {
+            positions.map {
+                if (it.id == id) it.copy(name = name, updatedAt = now) else it
+            }
+        }
+        posRepo.save(positions)
+        return true
+    }
+
+    fun deletePosition(id: String) {
+        positions = positions.filterNot { it.id == id }
+        posRepo.save(positions)
+    }
+
+    /** 拖动排序：把 from 位置的方位移动到 to 位置，然后重排 sortOrder。 */
+    fun reorderPositions(moduleId: String, from: Int, to: Int) {
+        val list = positionsOf(moduleId).toMutableList()
+        if (from !in list.indices || to !in list.indices || from == to) return
+        val moved = list.removeAt(from)
+        list.add(to, moved)
+        val newOrder = list.mapIndexed { index, p -> p.copy(sortOrder = index) }
+        positions = positions.map { p ->
+            newOrder.firstOrNull { it.id == p.id } ?: p
+        }
+        posRepo.save(positions)
     }
 }

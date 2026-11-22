@@ -75,3 +75,14 @@ fun Long.relativeText(now: Long = System.currentTimeMillis()): String {
         else -> "${diff / (30 * day)} 个月前"
     }
 }
+
+/** 方位：模块内的位置划分，物品装在它里面。sortOrder 决定物品的显示顺序。 */
+data class Position(
+    val id: String = UUID.randomUUID().toString(),
+    val moduleId: String,
+    val name: String,
+    val sortOrder: Int = 0,
+    val itemCount: Int = 0,
+    val updatedAt: Long = System.currentTimeMillis(),
+    val createdAt: Long = System.currentTimeMillis()
+)
