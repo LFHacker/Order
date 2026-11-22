@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -30,18 +29,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import online.lfcloud.order.OrderViewModel
 import online.lfcloud.order.ui.theme.Bg
-import online.lfcloud.order.ui.theme.Danger
 import online.lfcloud.order.ui.theme.HairLine
 import online.lfcloud.order.ui.theme.Ink
 import online.lfcloud.order.ui.theme.Muted
-import online.lfcloud.order.ui.theme.OrderPalette
 import online.lfcloud.order.ui.theme.Teal
 import online.lfcloud.order.ui.theme.TealDeep
 import java.util.Locale
@@ -51,14 +46,12 @@ private val ThemeOptions = listOf("跟随系统", "浅色", "深色")
 @Composable
 fun SettingsScreen(
     vm: OrderViewModel,
-    onBack: () -> Unit,
-    onLogout: () -> Unit
+    onBack: () -> Unit
 ) {
     var showTheme by remember { mutableStateOf(false) }
     var showCache by remember { mutableStateOf(false) }
     var cacheText by remember { mutableStateOf(formatBytes(vm.cacheSizeBytes())) }
     var showUpdate by remember { mutableStateOf(false) }
-    var showLogout by remember { mutableStateOf(false) }
 
     Column(Modifier.fillMaxSize().background(Bg)) {
         Box(Modifier.fillMaxWidth().height(50.dp)) {
@@ -83,17 +76,6 @@ fun SettingsScreen(
             SectionLabel("关于")
             SettingRow("版本", vm.versionName(), false) {}
             SettingRow("检查更新", "已是最新", true) { showUpdate = true }
-
-            Spacer(Modifier.height(26.dp))
-            Box(
-                Modifier.fillMaxWidth().padding(horizontal = 16.dp).height(48.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(if (OrderPalette.dark) Color(0xFF2A1714) else Color(0xFFFBF5F4))
-                    .clickable { showLogout = true },
-                contentAlignment = Alignment.Center
-            ) {
-                Text("退出登录", fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold, color = Danger)
-            }
 
             Spacer(Modifier.height(30.dp))
         }
@@ -145,31 +127,6 @@ fun SettingsScreen(
             confirmButton = {
                 TextButton(onClick = { showUpdate = false }) {
                     Text("好", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Teal)
-                }
-            }
-        )
-    }
-
-    if (showLogout) {
-        AlertDialog(
-            onDismissRequest = { showLogout = false },
-            containerColor = Bg,
-            title = { Text("退出登录？", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Ink) },
-            text = {
-                Text("退出后本地数据仍保留，下次登录会重新校验身份。",
-                    fontSize = 13.sp, color = Muted, lineHeight = 20.sp)
-            },
-            confirmButton = {
-                TextButton(onClick = {
-                    showLogout = false
-                    onLogout()
-                }) {
-                    Text("退出", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Danger)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showLogout = false }) {
-                    Text("取消", fontSize = 14.sp, color = Muted)
                 }
             }
         )

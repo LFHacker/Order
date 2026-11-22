@@ -35,8 +35,6 @@ import online.lfcloud.order.ui.DeleteWorkspaceDialog
 import online.lfcloud.order.ui.EventScreen
 import online.lfcloud.order.ui.ItemDetailScreen
 import online.lfcloud.order.ui.ItemEditScreen
-import online.lfcloud.order.ui.LoginScreen
-import online.lfcloud.order.ui.RegisterScreen
 import online.lfcloud.order.ui.ItemListScreen
 import online.lfcloud.order.ui.ModuleEditScreen
 import online.lfcloud.order.ui.ModuleListScreen
@@ -101,10 +99,6 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 private fun OrderApp(vm: OrderViewModel) {
-    if (!vm.loggedIn) {
-        AuthFlow(vm)
-        return
-    }
     var screen by remember { mutableStateOf<Screen>(Screen.Workspaces) }
     var wsSheet by remember { mutableStateOf(false) }
     var mdSheet by remember { mutableStateOf(false) }
@@ -198,11 +192,7 @@ private fun OrderApp(vm: OrderViewModel) {
                 onEditPassword = { screen = Screen.EditPassword }
             )
 
-            Screen.Settings -> SettingsScreen(
-                vm = vm,
-                onBack = { screen = Screen.Workspaces },
-                onLogout = { vm.logout(); screen = Screen.Workspaces }
-            )
+            Screen.Settings -> SettingsScreen(vm = vm, onBack = { screen = Screen.Workspaces })
 
             Screen.EditAccountField -> AccountFieldEditScreen(
                 field = editField,
@@ -304,12 +294,3 @@ private fun OrderApp(vm: OrderViewModel) {
     }
 }
 
-@Composable
-private fun AuthFlow(vm: OrderViewModel) {
-    var showRegister by remember { mutableStateOf(false) }
-    if (showRegister) {
-        RegisterScreen(vm = vm, onBack = { showRegister = false; vm.clearAuthError() })
-    } else {
-        LoginScreen(vm = vm, onGoRegister = { showRegister = true; vm.clearAuthError() })
-    }
-}
