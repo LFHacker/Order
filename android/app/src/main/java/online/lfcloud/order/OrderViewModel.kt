@@ -146,13 +146,49 @@ class OrderViewModel(app: Application) : AndroidViewModel(app) {
 
     var sessionUser by mutableStateOf(sessionStore.username)
         private set
-    var loggedIn by mutableStateOf(!sessionStore.token.isNullOrEmpty())
+    var loggedIn by mutableStateOf(sessionStore.hasValidSession())
         private set
     var authBusy by mutableStateOf(false)
         private set
     var authError by mutableStateOf<String?>(null)
 
     fun authToken(): String? = sessionStore.token
+
+    /**
+     * 启动时的登录态检测：
+     * 1) 本地有 token 且未过期 → 直接视为已登录（不阻塞启动）
+     * 2) 再向服务端核对一次：明确 401 才清掉登录态（网络不通不动它）
+     */
+    fun checkSession() {
+        if (!sessionStore.hasValidSession()) {
+            if (loggedIn) forceLogout()
+            return
+        }
+        val token = sessionStore.token ?: return
+        io.launch {
+            val result = runCatching { AuthApi.me(token) }
+            val error = result.exceptionOrNull() as? ApiException
+            if (error?.code == "UNAUTHORIZED") {
+                withContext(Dispatchers.Main) { forceLogout() }
+            } else {
+                result.getOrNull()?.let { name ->
+                    withContext(Dispatchers.Main) {
+                        if (name.isNotBlank() && sessionUser != name) {
+                            sessionUser = name
+                            sessionStore.username = name
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    fun forceLogout() {
+        sessionStore.clear()
+        loggedIn = false
+        sessionUser = ""
+        authError = null
+    }
 
     fun clearAuthError() {
         authError = null

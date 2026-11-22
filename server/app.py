@@ -76,15 +76,21 @@ def fail(code: str, message: str, status: int):
     )
 
 
-def new_token(user_id: str, device_id: str) -> str:
+def iso_from_epoch(ts: int) -> str:
+    return datetime.fromtimestamp(ts, timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
+
+
+def new_token(user_id: str, device_id: str) -> dict:
+    """签发 token，返回 token 与到期时间（ISO-8601 UTC）。"""
     token = secrets.token_urlsafe(32)
+    expires_at = int(time.time()) + TOKEN_TTL
     with db() as conn:
         conn.execute(
             "INSERT INTO sessions(token, user_id, device_id, created_at, expires_at)"
             " VALUES(?,?,?,?,?)",
-            (token, user_id, device_id, now_iso(), int(time.time()) + TOKEN_TTL),
+            (token, user_id, device_id, now_iso(), expires_at),
         )
-    return token
+    return {"token": token, "expires_at": iso_from_epoch(expires_at)}
 
 
 def require_auth(fn):
@@ -159,8 +165,15 @@ def register():
     except sqlite3.IntegrityError:
         return fail("CONFLICT", "该账号已被注册", 409)
 
-    token = new_token(user_id, device_id)
-    return ok({"token": token, "user": user_payload(user_id, username)}, 201)
+    issued = new_token(user_id, device_id)
+    return ok(
+        {
+            "token": issued["token"],
+            "expires_at": issued["expires_at"],
+            "user": user_payload(user_id, username),
+        },
+        201,
+    )
 
 
 @app.post("/api/v1/auth/login")
@@ -181,14 +194,25 @@ def login():
     if row is None or not check_password_hash(row["password_hash"], password):
         return fail("UNAUTHORIZED", "账号或密码不正确", 401)
 
-    token = new_token(row["id"], device_id)
-    return ok({"token": token, "user": user_payload(row["id"], row["username"])})
+    issued = new_token(row["id"], device_id)
+    return ok(
+        {
+            "token": issued["token"],
+            "expires_at": issued["expires_at"],
+            "user": user_payload(row["id"], row["username"]),
+        }
+    )
 
 
 @app.get("/api/v1/auth/me")
 @require_auth
 def me():
-    return ok({"user": user_payload(g.user_id, g.username)})
+    with db() as conn:
+        row = conn.execute(
+            "SELECT expires_at FROM sessions WHERE token = ?", (g.token,)
+        ).fetchone()
+    expires = iso_from_epoch(row["expires_at"]) if row else None
+    return ok({"user": user_payload(g.user_id, g.username), "expires_at": expires})
 
 
 @app.post("/api/v1/auth/logout")

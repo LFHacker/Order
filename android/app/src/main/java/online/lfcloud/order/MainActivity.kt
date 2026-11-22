@@ -13,6 +13,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,6 +36,8 @@ import online.lfcloud.order.ui.DeleteWorkspaceDialog
 import online.lfcloud.order.ui.EventScreen
 import online.lfcloud.order.ui.ItemDetailScreen
 import online.lfcloud.order.ui.ItemEditScreen
+import online.lfcloud.order.ui.LoginScreen
+import online.lfcloud.order.ui.RegisterScreen
 import online.lfcloud.order.ui.ItemListScreen
 import online.lfcloud.order.ui.ModuleEditScreen
 import online.lfcloud.order.ui.ModuleListScreen
@@ -99,6 +102,14 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 private fun OrderApp(vm: OrderViewModel) {
+    // 启动时检测一次登录态（本地过期判断 + 服务端核对）
+    LaunchedEffect(Unit) { vm.checkSession() }
+
+    if (!vm.loggedIn) {
+        AuthFlow(vm)
+        return
+    }
+
     var screen by remember { mutableStateOf<Screen>(Screen.Workspaces) }
     var wsSheet by remember { mutableStateOf(false) }
     var mdSheet by remember { mutableStateOf(false) }
@@ -294,3 +305,12 @@ private fun OrderApp(vm: OrderViewModel) {
     }
 }
 
+@Composable
+private fun AuthFlow(vm: OrderViewModel) {
+    var showRegister by remember { mutableStateOf(false) }
+    if (showRegister) {
+        RegisterScreen(vm = vm, onBack = { showRegister = false; vm.clearAuthError() })
+    } else {
+        LoginScreen(vm = vm, onGoRegister = { showRegister = true; vm.clearAuthError() })
+    }
+}
