@@ -44,6 +44,7 @@ import online.lfcloud.order.ui.theme.HairLine
 import online.lfcloud.order.ui.theme.Ink
 import online.lfcloud.order.ui.theme.Muted
 import online.lfcloud.order.ui.theme.MutedLight
+import online.lfcloud.order.ui.theme.Soft2
 import online.lfcloud.order.ui.theme.Teal
 
 @Composable
@@ -213,7 +214,7 @@ private fun PrimaryButton(
     Box(
         Modifier.fillMaxWidth().padding(horizontal = 24.dp).height(50.dp)
             .clip(RoundedCornerShape(12.dp))
-            .background(if (enabled) Teal else Color(0xFFDDF1EE))
+            .background(if (enabled) Teal else Soft2)
             .then(if (enabled) Modifier.clickable(onClick = onClick) else Modifier),
         contentAlignment = Alignment.Center
     ) {
@@ -223,8 +224,11 @@ private fun PrimaryButton(
                 modifier = Modifier.size(20.dp)
             )
         } else {
-            Text(text, fontSize = 15.5.sp, fontWeight = FontWeight.SemiBold,
-                color = Color.White, letterSpacing = 0.3.sp)
+            Text(
+                text, fontSize = 15.5.sp, fontWeight = FontWeight.SemiBold,
+                color = if (enabled) Color.White else Muted,
+                letterSpacing = 0.3.sp
+            )
         }
     }
 }

@@ -106,7 +106,9 @@ private fun OrderApp(vm: OrderViewModel) {
     LaunchedEffect(Unit) { vm.checkSession() }
 
     if (!vm.loggedIn) {
-        AuthFlow(vm)
+        Box(Modifier.fillMaxSize().background(Bg).systemBarsPadding()) {
+            AuthFlow(vm)
+        }
         return
     }
 
